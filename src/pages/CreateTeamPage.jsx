@@ -22,7 +22,7 @@ export default function CreateTeamPage() {
 
       <form
         onSubmit={handleSubmit}
-        className="space-y-5 rounded-xl border bg-white p-8 shadow-sm"
+        className="space-y-5 rounded-xl border border-gray-200 bg-white p-8 shadow-sm"
       >
         <div>
           <label
@@ -37,7 +37,7 @@ export default function CreateTeamPage() {
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
+            className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 placeholder-gray-400 transition-colors focus:border-violet-400 focus:ring-2 focus:ring-violet-100 focus:outline-none"
             placeholder="e.g., Development Team"
           />
         </div>
@@ -54,7 +54,7 @@ export default function CreateTeamPage() {
             rows={3}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
+            className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 placeholder-gray-400 transition-colors focus:border-violet-400 focus:ring-2 focus:ring-violet-100 focus:outline-none"
             placeholder="What is this team working on?"
           />
         </div>
@@ -62,14 +62,14 @@ export default function CreateTeamPage() {
         <div className="flex items-center gap-3">
           <button
             type="submit"
-            className="rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-200 focus:outline-none cursor-pointer"
+            className="rounded-lg bg-gradient-to-r from-violet-500 to-purple-600 px-6 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 focus:ring-2 focus:ring-violet-200 focus:outline-none cursor-pointer"
           >
             Create Team
           </button>
           <button
             type="button"
             onClick={() => navigate("/teams")}
-            className="rounded-lg border border-gray-300 px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
+            className="rounded-lg border border-gray-300 px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 cursor-pointer"
           >
             Cancel
           </button>
