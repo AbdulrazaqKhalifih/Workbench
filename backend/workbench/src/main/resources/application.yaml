@@ -1,0 +1,80 @@
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  application:
+    name: Workbench
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASS}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        default_schema: public
+        format_sql: true
+    show-sql: true
+  flyway:
+    enabled: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms
+      repositories:
+        enabled: false
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 2
+          max-wait: -1ms
+        shutdown-timeout: 100ms
+  cache:
+    type: redis
+  mail:
+    host: ${SMTP_HOST:localhost}
+    port: ${SMTP_PORT:1025}
+    username: ${SMTP_USER:}
+    password: ${SMTP_PASS:}
+
+# Token related configs
+
+identity:
+  app:
+    rate-limit:
+      password-reset:
+        start-per-hour: 3
+        verify-per-hour: 10
+        ip-per-hour: 10
+    security:
+      jwt:
+        secret: ${JWT_SECRET}
+        issuer: ${APP_NAME}
+        access-ttl-minutes: ${JWT_ACCESS_TTL}
+      refresh-cookie:
+        name: ${REFRESH_COOKIE_NAME}
+        secure: false
+        same-site: LAX
+        path: /api/v1/auth
+        refresh-ttl-days: ${REFRESH_TOKEN_TTL}
+      token:
+        pepper: ${TOKEN_PEPPER}
+    mail:
+      from: "no-reply@workbench.local"
+      reset:
+        subject: "Your Workbench password reset code"
+
+# redis config
+app:
+  redis:
+    enabled: true
+  rate-limit:
+    fail-open: false
+    global:
+      default-max-attempts: 100
+      default-window-seconds: 3600
