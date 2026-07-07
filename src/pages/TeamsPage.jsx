@@ -8,7 +8,7 @@ export default function TeamsPage() {
   const { teams } = useTeams();
 
   const userTeams = teams.filter((t) =>
-    t.members.some((m) => m.userId === user.id),
+    t.members?.some((m) => String(m.userId) === String(user.id)),
   );
 
   return (
@@ -49,7 +49,10 @@ export default function TeamsPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {userTeams.map((team) => {
-            const myRole = team.members.find((m) => m.userId === user.id)?.role;
+            const myRole = team.members?.find(
+              (m) => String(m.userId) === String(user.id),
+            )?.role;
+            const isAdmin = String(myRole).toUpperCase() === "ADMIN";
             return (
               <Link
                 key={team.id}
@@ -62,23 +65,26 @@ export default function TeamsPage() {
                   </div>
                   <span
                     className={`rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${
-                      myRole === "admin"
+                      isAdmin
                         ? "bg-violet-100 text-violet-700"
                         : "bg-emerald-100 text-emerald-700"
                     }`}
                   >
-                    {myRole}
+                    {String(myRole || "member").toLowerCase()}
                   </span>
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900">
                   {team.name}
                 </h3>
                 <p className="mt-1 text-sm text-gray-500 line-clamp-2">
-                  {team.description}
+                  Team workspace
                 </p>
                 <p className="mt-3 text-xs text-gray-400">
-                  {team.members.length} member
-                  {team.members.length !== 1 ? "s" : ""}
+                  {team.members?.length || 0} member
+                  {(team.members?.length || 0) !== 1 ? "s" : ""}
+                </p>
+                <p className="mt-1 text-xs text-violet-600 opacity-0 transition-opacity group-hover:opacity-100">
+                  Open team
                 </p>
               </Link>
             );

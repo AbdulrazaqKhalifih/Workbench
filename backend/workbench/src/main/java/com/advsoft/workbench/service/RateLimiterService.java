@@ -4,6 +4,7 @@ import com.advsoft.workbench.config.RateLimitConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.data.redis.core.types.Expiration;
@@ -31,9 +32,9 @@ public class RateLimiterService {
     // IMPORTANT: this must be the String-based template (rateLimitRedisTemplate)
     public RateLimiterService(
             @Qualifier("rateLimitRedisTemplate")
-            RedisTemplate<String, String> rateLimitRedisTemplate,
+            ObjectProvider<RedisTemplate<String, String>> rateLimitRedisTemplate,
             RateLimitConfig config) {
-        this.redisTemplate = rateLimitRedisTemplate;
+        this.redisTemplate = rateLimitRedisTemplate.getIfAvailable();
         this.config = config;
     }
 
@@ -57,6 +58,10 @@ public class RateLimiterService {
      */
     public boolean isAllowed(String key, int maxAttempts, Duration window) {
         String redisKey = KEY_PREFIX + key;
+        if (redisTemplate == null) {
+            return handleRedisFailure();
+        }
+
         try {
             RedisScript<Long> script = RedisScript.of(INCR_AND_EXPIRE_SCRIPT, Long.class);
             Long count = redisTemplate.execute(script,

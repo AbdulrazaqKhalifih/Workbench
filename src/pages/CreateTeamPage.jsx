@@ -10,10 +10,14 @@ export default function CreateTeamPage() {
   const { createTeam } = useTeams();
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const team = createTeam(name, description, user.id);
-    navigate(`/teams/${team.id}`);
+    const team = await createTeam(name, description, user.id);
+    if (team?.id) {
+      navigate(`/teams/${team.id}`);
+    } else {
+      navigate("/teams");
+    }
   };
 
   return (

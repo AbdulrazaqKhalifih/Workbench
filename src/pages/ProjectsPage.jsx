@@ -10,10 +10,12 @@ export default function ProjectsPage() {
   const { projects } = useProjects();
 
   const userTeamIds = teams
-    .filter((t) => t.members.some((m) => m.userId === user.id))
+    .filter((t) => t.members?.some((m) => String(m.userId) === String(user.id)))
     .map((t) => t.id);
 
-  const userProjects = projects.filter((p) => userTeamIds.includes(p.teamId));
+  const userProjects = projects.filter((p) =>
+    userTeamIds.map(String).includes(String(p.teamId)),
+  );
 
   const getTeamName = (teamId) =>
     teams.find((t) => t.id === teamId)?.name || "Unknown";
@@ -56,8 +58,9 @@ export default function ProjectsPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {userProjects.map((project) => (
-            <div
+            <Link
               key={project.id}
+              to={`/projects/${project.id}`}
               className="group rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-md hover:border-amber-200"
             >
               <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 text-amber-600 group-hover:bg-amber-200 transition-colors">
@@ -73,8 +76,11 @@ export default function ProjectsPage() {
                 <span className="rounded-full bg-violet-100 px-2.5 py-0.5 text-xs font-medium text-violet-700">
                   {getTeamName(project.teamId)}
                 </span>
+                <span className="text-xs text-amber-600 opacity-0 transition-opacity group-hover:opacity-100">
+                  Open project
+                </span>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}

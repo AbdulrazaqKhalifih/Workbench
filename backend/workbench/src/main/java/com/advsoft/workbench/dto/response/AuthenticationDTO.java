@@ -13,4 +13,15 @@ import lombok.NoArgsConstructor;
 public class AuthenticationDTO {
     private String accessToken;
     private long expiresIn;
+    private UserInfoDTO user;
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class UserInfoDTO {
+        private Long id;
+        private String username;
+        private String email;
+    }
 }

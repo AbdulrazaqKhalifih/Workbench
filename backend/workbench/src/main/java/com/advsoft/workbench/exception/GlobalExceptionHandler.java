@@ -78,6 +78,19 @@ public class GlobalExceptionHandler {
                         .build()
                 );
     }
+
+    @ExceptionHandler(EmailAlreadyInUseException.class)
+    public ResponseEntity<ApiErrorDTO> handleEmailAlreadyInUse(EmailAlreadyInUseException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ApiErrorDTO.builder()
+                        .code("EMAIL_ALREADY_IN_USE")
+                        .error(ex.getMessage())
+                        .timestamp(Instant.now())
+                        .status(HttpStatus.CONFLICT.toString())
+                        .build());
+    }
+
     @ExceptionHandler(RateLimitExceededException.class)
     public ResponseEntity<Map<String, Object>> handleRateLimitExceeded(RateLimitExceededException ex) {
 

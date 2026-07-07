@@ -7,6 +7,7 @@ import com.advsoft.workbench.dto.request.RegisterDTO;
 import com.advsoft.workbench.dto.response.AuthenticationDTO;
 import com.advsoft.workbench.exception.InvalidCodeException;
 import com.advsoft.workbench.exception.InvalidCredentialsException;
+import com.advsoft.workbench.exception.EmailAlreadyInUseException;
 import com.advsoft.workbench.exception.RateLimitExceededException;
 import com.advsoft.workbench.model.*;
 import com.advsoft.workbench.repository.*;
@@ -59,7 +60,7 @@ public class AuthService {
 
 
         if (userRepo.existsByEmailIgnoreCase(registerDTO.getEmail())) {
-            throw new IllegalArgumentException("Email already in use");
+            throw new EmailAlreadyInUseException("Email already in use");
         }
 
 
@@ -184,9 +185,19 @@ public class AuthService {
 
         refreshRepo.save(rt);
 
+        // Fetch full user details
+        User fullUser = userRepo.findById(userId).orElseThrow();
+
+        AuthenticationDTO.UserInfoDTO userInfo = AuthenticationDTO.UserInfoDTO.builder()
+                .id(fullUser.getId())
+                .username(fullUser.getUsername())
+                .email(fullUser.getEmail())
+                .build();
+
         AuthenticationDTO body = AuthenticationDTO.builder()
                 .accessToken(accessToken)
                 .expiresIn(jwtService.getAccessTtlSeconds())
+                .user(userInfo)
                 .build();
 
         return new AuthTokenResult(body, refreshValue, refreshTtlSeconds);

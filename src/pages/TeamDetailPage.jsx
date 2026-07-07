@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Users, FolderKanban, Plus, ArrowLeft, UserPlus } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
@@ -7,41 +8,86 @@ import { useProjects } from "../context/ProjectContext";
 
 export default function TeamDetailPage() {
   const { teamId } = useParams();
-  const { user, users } = useAuth();
-  const { getTeam, addMember, getUserRole } = useTeams();
+  const { user } = useAuth();
+  const { getTeam, addMember, getUserRole, fetchTeamMembers } = useTeams();
   const { getProjectsByTeam } = useProjects();
 
   const team = getTeam(teamId);
+  const teamMembers = team?.members || [];
   const myRole = getUserRole(teamId, user.id);
-  const isAdmin = myRole === "admin";
+  const isAdmin = String(myRole).toUpperCase() === "ADMIN";
   const teamProjects = getProjectsByTeam(teamId);
 
   const [addEmail, setAddEmail] = useState("");
   const [addError, setAddError] = useState("");
   const [addSuccess, setAddSuccess] = useState("");
 
-  const handleAddMember = (e) => {
+  useEffect(() => {
+    fetchTeamMembers(teamId);
+  }, [teamId, fetchTeamMembers]);
+
+  const [remoteTeam, setRemoteTeam] = useState(null);
+
+  useEffect(() => {
+    if (team) return;
+
+    const loadTeam = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/api/v1/teams/${teamId}`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
+
+        if (response.ok) {
+          setRemoteTeam(await response.json());
+        }
+      } catch (error) {
+        console.error("Failed to load team details:", error);
+      }
+    };
+
+    loadTeam();
+  }, [team, teamId]);
+
+  const displayedTeam = team || remoteTeam;
+
+  const handleAddMember = async (e) => {
     e.preventDefault();
     setAddError("");
     setAddSuccess("");
 
-    const foundUser = users.find((u) => u.email === addEmail);
-    if (!foundUser) {
+    const response = await fetch(
+      `http://localhost:8080/api/v1/users/by-email?email=${encodeURIComponent(addEmail)}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      },
+    );
+
+    if (!response.ok) {
       setAddError("No user found with that email");
       return;
     }
-    const alreadyMember = team.members.some((m) => m.userId === foundUser.id);
+
+    const foundUser = await response.json();
+    const alreadyMember = teamMembers.some(
+      (m) => String(m.userId) === String(foundUser.id),
+    );
     if (alreadyMember) {
       setAddError("User is already a member of this team");
       return;
     }
 
-    addMember(teamId, foundUser.id, "member");
-    setAddSuccess(`Added ${foundUser.name} to the team!`);
+    await addMember(teamId, foundUser.id, "member");
+    setAddSuccess(`Added ${foundUser.username} to the team!`);
     setAddEmail("");
   };
 
-  if (!team) {
+  if (!displayedTeam) {
     return (
       <div className="py-12 text-center">
         <p className="text-lg text-gray-500">Team not found</p>
@@ -56,10 +102,7 @@ export default function TeamDetailPage() {
     );
   }
 
-  const memberDetails = team.members.map((m) => ({
-    ...m,
-    userInfo: users.find((u) => u.id === m.userId),
-  }));
+  const memberDetails = teamMembers;
 
   return (
     <div>
@@ -75,8 +118,8 @@ export default function TeamDetailPage() {
 
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{team.name}</h1>
-          <p className="mt-1 text-gray-500">{team.description}</p>
+          <h1 className="text-2xl font-bold text-gray-900">{displayedTeam.name}</h1>
+          <p className="mt-1 text-gray-500">Team workspace</p>
         </div>
         <span
           className={`rounded-full px-3 py-1 text-xs font-medium capitalize ${
@@ -85,7 +128,7 @@ export default function TeamDetailPage() {
               : "bg-emerald-100 text-emerald-700"
           }`}
         >
-          {myRole}
+          {String(myRole || "member").toLowerCase()}
         </span>
       </div>
 
@@ -130,23 +173,23 @@ export default function TeamDetailPage() {
               >
                 <div className="flex items-center gap-3">
                   <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-purple-600 text-sm font-bold text-white">
-                    {m.userInfo?.name?.charAt(0)?.toUpperCase() || "?"}
+                    {(m.userName || "?").charAt(0).toUpperCase()}
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-900">
-                      {m.userInfo?.name || "Unknown"}
+                      {m.userName || "Unknown"}
                     </p>
-                    <p className="text-xs text-gray-400">{m.userInfo?.email}</p>
+                    <p className="text-xs text-gray-400">{m.email}</p>
                   </div>
                 </div>
                 <span
                   className={`rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${
-                    m.role === "admin"
+                    String(m.role).toUpperCase() === "ADMIN"
                       ? "bg-violet-100 text-violet-700"
                       : "bg-emerald-100 text-emerald-700"
                   }`}
                 >
-                  {m.role}
+                  {String(m.role).toLowerCase()}
                 </span>
               </div>
             ))}
@@ -162,7 +205,7 @@ export default function TeamDetailPage() {
             </h2>
             {isAdmin && (
               <Link
-                to={`/projects/new?teamId=${team.id}`}
+                to={`/projects/new?teamId=${displayedTeam.id}`}
                 className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-violet-500 to-purple-600 px-3 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
               >
                 <Plus className="h-4 w-4" />
@@ -186,7 +229,12 @@ export default function TeamDetailPage() {
                   key={project.id}
                   className="rounded-lg border border-gray-100 p-3 transition-colors hover:bg-gray-50"
                 >
-                  <p className="font-medium text-gray-900">{project.name}</p>
+                  <Link
+                    to={`/projects/${project.id}`}
+                    className="font-medium text-gray-900 hover:text-violet-600"
+                  >
+                    {project.name}
+                  </Link>
                   <p className="text-sm text-gray-500">{project.description}</p>
                 </div>
               ))}

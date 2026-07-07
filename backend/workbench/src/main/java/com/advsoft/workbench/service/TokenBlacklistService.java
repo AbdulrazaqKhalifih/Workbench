@@ -2,6 +2,7 @@ package com.advsoft.workbench.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -20,14 +21,18 @@ public class TokenBlacklistService {
 
     public TokenBlacklistService(
             @Qualifier("rateLimitRedisTemplate")
-            RedisTemplate<String, String> redisTemplate) {
-        this.redisTemplate = redisTemplate;
+            ObjectProvider<RedisTemplate<String, String>> redisTemplate) {
+        this.redisTemplate = redisTemplate.getIfAvailable();
     }
 
     /**
      * Blacklist a token for its remaining lifetime.
      */
     public void blacklist(String jti, Date tokenExpiry) {
+        if (redisTemplate == null) {
+            return;
+        }
+
         Duration remaining = Duration.between(Instant.now(), tokenExpiry.toInstant());
 
         if (remaining.isNegative() || remaining.isZero()) {
@@ -45,6 +50,10 @@ public class TokenBlacklistService {
     }
 
     public boolean isBlacklisted(String jti) {
+        if (redisTemplate == null) {
+            return false;
+        }
+
         try {
             return redisTemplate.hasKey(KEY_PREFIX + jti);
         } catch (Exception e) {

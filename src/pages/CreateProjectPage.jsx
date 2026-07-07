@@ -17,15 +17,19 @@ export default function CreateProjectPage() {
   const navigate = useNavigate();
 
   const userTeams = teams.filter((t) => {
-    const member = t.members.find((m) => m.userId === user.id);
-    return member && member.role === "admin";
+    const member = t.members?.find(
+      (m) => String(m.userId) === String(user.id),
+    );
+    return Boolean(member);
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedTeamId) return;
-    const project = createProject(name, description, selectedTeamId);
-    navigate(`/teams/${selectedTeamId}`);
+    const project = await createProject(name, description, selectedTeamId);
+    if (project?.id) {
+      navigate(`/projects/${project.id}`);
+    }
   };
 
   return (
@@ -61,7 +65,7 @@ export default function CreateProjectPage() {
           </select>
           {userTeams.length === 0 && (
             <p className="mt-1 text-xs text-gray-500">
-              You need to be an admin of at least one team to create a project.
+              You need to belong to at least one team to create a project.
             </p>
           )}
         </div>
