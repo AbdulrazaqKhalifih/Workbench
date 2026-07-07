@@ -7,6 +7,7 @@ import {
   Wrench,
   LogOut,
   Menu,
+  ChevronDown,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
@@ -21,6 +22,7 @@ export default function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -28,7 +30,7 @@ export default function Layout() {
   };
 
   return (
-    <div className="flex h-screen bg-[#f0f2f5]">
+    <div className="flex h-screen bg-gray-50">
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
@@ -39,20 +41,20 @@ export default function Layout() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-30 flex w-64 flex-col bg-[#1e1e2f] text-white transition-transform lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-30 flex w-60 flex-col bg-white text-gray-700 border-r border-gray-200 transition-transform lg:static lg:translate-x-0 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* Logo */}
-        <div className="flex h-16 items-center gap-3 border-b border-[#2a2a40] px-6">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-purple-600">
-            <Wrench className="h-4 w-4 text-white" />
+        <div className="flex h-14 items-center gap-2.5 border-b border-gray-100 px-5">
+          <div className="flex h-7 w-7 items-center justify-center rounded bg-amber-400">
+            <Wrench className="h-3.5 w-3.5 text-white" />
           </div>
-          <span className="text-lg font-bold tracking-tight">Workbench</span>
+          <span className="text-sm font-bold tracking-tight text-gray-800">Workbench</span>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 space-y-1 px-3 py-6">
+        <nav className="flex-1 space-y-0.5 px-3 py-4">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive =
@@ -65,14 +67,14 @@ export default function Layout() {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
+                className={`flex items-center gap-2.5 rounded-md px-3 py-2 text-xs font-medium transition-all ${
                   isActive
-                    ? "bg-gradient-to-r from-violet-500/20 to-purple-600/20 text-violet-300"
-                    : "text-gray-400 hover:bg-[#2a2a40] hover:text-gray-200"
+                    ? "bg-amber-50 text-amber-700"
+                    : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
                 }`}
                 onClick={() => setSidebarOpen(false)}
               >
-                <Icon className="h-4 w-4" />
+                <Icon className="h-3.5 w-3.5" />
                 {item.label}
               </Link>
             );
@@ -80,46 +82,57 @@ export default function Layout() {
         </nav>
 
         {/* User section */}
-        <div className="border-t border-[#2a2a40] p-4">
-          <div className="mb-3 flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-purple-600 text-xs font-bold text-white">
-              {user?.name?.charAt(0)?.toUpperCase() || "U"}
-            </div>
-            <div className="flex-1 truncate text-sm">
-              <p className="font-medium text-white truncate">{user?.name}</p>
-              <p className="text-xs text-gray-500 truncate">{user?.email}</p>
-            </div>
+        <div className="border-t border-gray-100 px-3 py-3">
+          <div className="relative">
+            <button
+              onClick={() => setUserMenuOpen(!userMenuOpen)}
+              className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 hover:bg-gray-100 transition-colors cursor-pointer text-left"
+            >
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-400 text-[10px] font-bold text-white flex-shrink-0">
+                {user?.name?.charAt(0)?.toUpperCase() || "U"}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-gray-800 truncate">{user?.name}</p>
+                <p className="text-[10px] text-gray-400 truncate">{user?.email}</p>
+              </div>
+              <ChevronDown className={`h-3 w-3 text-gray-400 transition-transform ${userMenuOpen ? "rotate-180" : ""}`} />
+            </button>
+
+            {userMenuOpen && (
+              <div className="absolute bottom-full left-0 right-0 mb-1 rounded-md border border-gray-200 bg-white py-1 shadow-lg">
+                <button
+                  onClick={handleLogout}
+                  className="flex w-full items-center gap-2.5 px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer"
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                  Sign Out
+                </button>
+              </div>
+            )}
           </div>
-          <button
-            onClick={handleLogout}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-400 hover:bg-[#2a2a40] hover:text-gray-200 transition-colors cursor-pointer"
-          >
-            <LogOut className="h-4 w-4" />
-            Sign Out
-          </button>
         </div>
       </aside>
 
       {/* Main content */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Top bar (mobile) */}
-        <header className="flex h-16 items-center gap-4 border-b border-gray-200 bg-white px-4 lg:hidden shadow-sm">
+        <header className="flex h-14 items-center gap-3 border-b border-gray-200 bg-white px-4 lg:hidden">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="rounded-lg p-2 text-gray-600 hover:bg-gray-100 cursor-pointer"
+            className="rounded-md p-1.5 text-gray-500 hover:bg-gray-100 cursor-pointer"
           >
-            <Menu className="h-5 w-5" />
+            <Menu className="h-4 w-4" />
           </button>
           <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-violet-500 to-purple-600">
-              <Wrench className="h-3.5 w-3.5 text-white" />
+            <div className="flex h-6 w-6 items-center justify-center rounded bg-amber-400">
+              <Wrench className="h-3 w-3 text-white" />
             </div>
-            <span className="text-lg font-bold text-gray-900">Workbench</span>
+            <span className="text-sm font-bold text-gray-800">Workbench</span>
           </div>
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto">
           <Outlet />
         </main>
       </div>

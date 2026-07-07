@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Users, FolderKanban, Plus, ArrowLeft, UserPlus } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
@@ -89,13 +88,13 @@ export default function TeamDetailPage() {
 
   if (!displayedTeam) {
     return (
-      <div className="py-12 text-center">
-        <p className="text-lg text-gray-500">Team not found</p>
+      <div className="px-6 py-12 text-center">
+        <p className="text-sm text-gray-500">Team not found</p>
         <Link
           to="/teams"
-          className="mt-2 inline-flex items-center gap-1 text-violet-600 hover:underline"
+          className="mt-2 inline-flex items-center gap-1 text-xs text-amber-600 hover:underline"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-3 w-3" />
           Back to Teams
         </Link>
       </div>
@@ -105,88 +104,88 @@ export default function TeamDetailPage() {
   const memberDetails = teamMembers;
 
   return (
-    <div>
-      <div className="mb-6">
+    <div className="px-6 py-8 max-w-5xl mx-auto">
+      <div className="mb-4">
         <Link
           to="/teams"
-          className="inline-flex items-center gap-1 text-sm text-violet-600 hover:underline"
+          className="inline-flex items-center gap-1 text-[11px] text-gray-500 hover:text-gray-700"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-3 w-3" />
           Back to Teams
         </Link>
       </div>
 
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-5 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{displayedTeam.name}</h1>
-          <p className="mt-1 text-gray-500">Team workspace</p>
+          <h1 className="text-base font-semibold text-gray-900">{displayedTeam.name}</h1>
+          <p className="mt-0.5 text-xs text-gray-500">Team workspace</p>
         </div>
         <span
-          className={`rounded-full px-3 py-1 text-xs font-medium capitalize ${
+          className={`rounded px-2 py-0.5 text-[10px] font-medium capitalize ${
             isAdmin
-              ? "bg-violet-100 text-violet-700"
-              : "bg-emerald-100 text-emerald-700"
+              ? "bg-amber-50 text-amber-700"
+              : "bg-gray-100 text-gray-600"
           }`}
         >
           {String(myRole || "member").toLowerCase()}
         </span>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2">
         {/* Members section */}
-        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
-            <Users className="h-5 w-5 text-violet-500" />
+        <div className="rounded-md border border-gray-200 bg-white p-4">
+          <h2 className="mb-3 flex items-center gap-1.5 text-xs font-semibold text-gray-900">
+            <Users className="h-3.5 w-3.5 text-amber-500" />
             Members ({memberDetails.length})
           </h2>
 
           {isAdmin && (
-            <form onSubmit={handleAddMember} className="mb-4 flex gap-2">
+            <form onSubmit={handleAddMember} className="mb-3 flex gap-1.5">
               <input
                 type="email"
                 required
                 value={addEmail}
                 onChange={(e) => setAddEmail(e.target.value)}
                 placeholder="Enter email to add..."
-                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm transition-colors focus:border-violet-400 focus:ring-2 focus:ring-violet-100 focus:outline-none"
+                className="flex-1 rounded-md border border-gray-300 px-2.5 py-1.5 text-xs transition-colors focus:border-amber-400 focus:ring-1 focus:ring-amber-200 focus:outline-none"
               />
               <button
                 type="submit"
-                className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-violet-500 to-purple-600 px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 cursor-pointer"
+                className="inline-flex items-center gap-1 rounded-md bg-amber-400 px-2.5 py-1.5 text-[11px] font-medium text-white transition-colors hover:bg-amber-500 cursor-pointer"
               >
-                <UserPlus className="h-4 w-4" />
+                <UserPlus className="h-3 w-3" />
                 Add
               </button>
             </form>
           )}
 
-          {addError && <p className="mb-3 text-sm text-red-600">{addError}</p>}
+          {addError && <p className="mb-2 text-[11px] text-red-600">{addError}</p>}
           {addSuccess && (
-            <p className="mb-3 text-sm text-emerald-600">{addSuccess}</p>
+            <p className="mb-2 text-[11px] text-emerald-600">{addSuccess}</p>
           )}
 
-          <div className="space-y-3">
+          <div className="space-y-1.5">
             {memberDetails.map((m) => (
               <div
                 key={m.userId}
-                className="flex items-center justify-between rounded-lg border border-gray-100 p-3 transition-colors hover:bg-gray-50"
+                className="flex items-center justify-between rounded-md border border-gray-100 p-2 transition-colors hover:bg-gray-50"
               >
-                <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-purple-600 text-sm font-bold text-white">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-[9px] font-bold text-white">
                     {(m.userName || "?").charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-xs font-medium text-gray-900">
                       {m.userName || "Unknown"}
                     </p>
-                    <p className="text-xs text-gray-400">{m.email}</p>
+                    <p className="text-[10px] text-gray-400">{m.email}</p>
                   </div>
                 </div>
                 <span
-                  className={`rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${
+                  className={`rounded px-1.5 py-0.5 text-[10px] font-medium capitalize ${
                     String(m.role).toUpperCase() === "ADMIN"
-                      ? "bg-violet-100 text-violet-700"
-                      : "bg-emerald-100 text-emerald-700"
+                      ? "bg-amber-50 text-amber-700"
+                      : "bg-gray-100 text-gray-600"
                   }`}
                 >
                   {String(m.role).toLowerCase()}
@@ -197,46 +196,43 @@ export default function TeamDetailPage() {
         </div>
 
         {/* Projects section */}
-        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
-              <FolderKanban className="h-5 w-5 text-amber-500" />
+        <div className="rounded-md border border-gray-200 bg-white p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="flex items-center gap-1.5 text-xs font-semibold text-gray-900">
+              <FolderKanban className="h-3.5 w-3.5 text-amber-500" />
               Projects ({teamProjects.length})
             </h2>
             {isAdmin && (
               <Link
                 to={`/projects/new?teamId=${displayedTeam.id}`}
-                className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-violet-500 to-purple-600 px-3 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+                className="inline-flex items-center gap-1 rounded-md bg-amber-400 px-2 py-1 text-[11px] font-medium text-white transition-colors hover:bg-amber-500"
               >
-                <Plus className="h-4 w-4" />
-                New Project
+                <Plus className="h-3 w-3" />
+                New
               </Link>
             )}
           </div>
 
           {teamProjects.length === 0 ? (
-            <div className="py-8 text-center text-gray-500">
-              <FolderKanban className="mx-auto mb-2 h-8 w-8 text-gray-300" />
-              <p className="text-sm">No projects yet.</p>
+            <div className="py-6 text-center text-gray-500">
+              <FolderKanban className="mx-auto mb-1.5 h-5 w-5 text-gray-300" />
+              <p className="text-xs">No projects yet.</p>
               {isAdmin && (
-                <p className="mt-1 text-xs">Create a project to get started.</p>
+                <p className="mt-0.5 text-[11px]">Create a project to get started.</p>
               )}
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-1.5">
               {teamProjects.map((project) => (
-                <div
+                <Link
                   key={project.id}
-                  className="rounded-lg border border-gray-100 p-3 transition-colors hover:bg-gray-50"
+                  to={`/projects/${project.id}`}
+                  className="block rounded-md border border-gray-100 p-2.5 transition-colors hover:bg-gray-50"
                 >
-                  <Link
-                    to={`/projects/${project.id}`}
-                    className="font-medium text-gray-900 hover:text-violet-600"
-                  >
+                  <p className="text-xs font-medium text-gray-900">
                     {project.name}
-                  </Link>
-                  <p className="text-sm text-gray-500">{project.description}</p>
-                </div>
+                  </p>
+                </Link>
               ))}
             </div>
           )}

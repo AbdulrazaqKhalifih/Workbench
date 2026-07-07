@@ -1,104 +1,109 @@
-import { Users, FolderKanban, User, Rocket } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Users, FolderKanban, ListTodo, Rocket } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useTeams } from "../context/TeamContext";
 import { useProjects } from "../context/ProjectContext";
+import { useTasks } from "../context/TaskContext";
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const { teams } = useTeams();
   const { projects } = useProjects();
+  const { tasks } = useTasks();
 
   const userTeams = teams.filter((t) =>
-    t.members.some((m) => m.userId === user.id),
+    t.members?.some((m) => String(m.userId) === String(user.id)),
   );
   const userProjects = projects.filter((p) =>
-    userTeams.some((t) => t.id === p.teamId),
+    userTeams.some((t) => String(t.id) === String(p.teamId)),
   );
 
+  const totalTasks = tasks.length;
+
   return (
-    <div>
+    <div className="px-6 py-8 max-w-6xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-base font-semibold text-gray-900">
           Welcome back, {user?.name}
         </h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-0.5 text-xs text-gray-500">
           Here's what's happening across your workspace.
         </p>
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {/* Teams card */}
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 p-6 text-white shadow-lg shadow-violet-200">
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white/20 backdrop-blur">
-              <Users className="h-6 w-6" />
+      <div className="grid gap-3 sm:grid-cols-3 mb-8">
+        <div className="rounded-md border border-gray-200 bg-white p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded bg-amber-50">
+              <Users className="h-4 w-4 text-amber-500" />
             </div>
             <div>
-              <p className="text-sm font-medium text-white/80">Your Teams</p>
-              <p className="text-3xl font-bold">{userTeams.length}</p>
+              <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">Teams</p>
+              <p className="text-lg font-semibold text-gray-900 mt-0.5">{userTeams.length}</p>
             </div>
           </div>
         </div>
-
-        {/* Projects card */}
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 p-6 text-white shadow-lg shadow-amber-200">
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white/20 backdrop-blur">
-              <FolderKanban className="h-6 w-6" />
+        <div className="rounded-md border border-gray-200 bg-white p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded bg-amber-50">
+              <FolderKanban className="h-4 w-4 text-amber-500" />
             </div>
             <div>
-              <p className="text-sm font-medium text-white/80">Your Projects</p>
-              <p className="text-3xl font-bold">{userProjects.length}</p>
+              <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">Projects</p>
+              <p className="text-lg font-semibold text-gray-900 mt-0.5">{userProjects.length}</p>
             </div>
           </div>
         </div>
-
-        {/* Role card */}
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 p-6 text-white shadow-lg shadow-emerald-200">
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white/20 backdrop-blur">
-              <User className="h-6 w-6" />
+        <div className="rounded-md border border-gray-200 bg-white p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded bg-amber-50">
+              <ListTodo className="h-4 w-4 text-amber-500" />
             </div>
             <div>
-              <p className="text-sm font-medium text-white/80">Your Role</p>
-              <p className="text-3xl font-bold capitalize">Admin</p>
+              <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">Active Tasks</p>
+              <p className="text-lg font-semibold text-gray-900 mt-0.5">{totalTasks}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Quick overview */}
-      <div className="mt-8">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">
-          Quick Overview
+      <div>
+        <h2 className="mb-3 text-xs font-semibold text-gray-700 uppercase tracking-wider">
+          Your Teams
         </h2>
-        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-md border border-gray-200 bg-white">
           {userTeams.length === 0 ? (
-            <div className="py-8 text-center text-gray-500">
-              <Rocket className="mx-auto mb-3 h-10 w-10 text-gray-300" />
-              <p className="font-medium text-gray-900">
+            <div className="py-10 text-center">
+              <Rocket className="mx-auto mb-2 h-6 w-6 text-gray-300" />
+              <p className="text-xs font-medium text-gray-900">
                 You're not part of any team yet.
               </p>
-              <p className="mt-1 text-sm">
+              <p className="mt-0.5 text-[11px] text-gray-500">
                 Create a team in the Teams section to get started!
               </p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="divide-y divide-gray-100">
               {userTeams.map((team) => (
-                <div
+                <Link
                   key={team.id}
-                  className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50/50 p-4 transition-colors hover:bg-gray-50"
+                  to={`/teams/${team.id}`}
+                  className="flex items-center justify-between px-4 py-2.5 hover:bg-gray-50 transition-colors"
                 >
-                  <div>
-                    <p className="font-medium text-gray-900">{team.name}</p>
-                    <p className="text-sm text-gray-500">{team.description}</p>
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-6 w-6 items-center justify-center rounded bg-gray-100">
+                      <Users className="h-3 w-3 text-gray-500" />
+                    </div>
+                    <p className="text-xs font-medium text-gray-900">{team.name}</p>
                   </div>
-                  <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-medium text-violet-700">
-                    {team.members.length} member
-                    {team.members.length !== 1 ? "s" : ""}
-                  </span>
-                </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-gray-400">
+                      {team.members?.length || 0} member{(team.members?.length || 0) !== 1 ? "s" : ""}
+                    </span>
+                    <span className="text-[10px] text-amber-500">→</span>
+                  </div>
+                </Link>
               ))}
             </div>
           )}

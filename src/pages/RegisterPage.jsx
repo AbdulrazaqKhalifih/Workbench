@@ -29,29 +29,29 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#f0f2f5] px-4">
-      <div className="w-full max-w-md">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+      <div className="w-full max-w-sm">
         {/* Brand header */}
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg shadow-violet-200">
-            <Wrench className="h-7 w-7 text-white" />
+          <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded bg-amber-400 shadow-sm">
+            <Wrench className="h-5 w-5 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">Workbench</h1>
-          <p className="mt-2 text-gray-500">Create your account</p>
+          <h1 className="text-xl font-bold text-gray-900">Workbench</h1>
+          <p className="mt-1 text-xs text-gray-500">Create your account</p>
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
+        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
           {error && (
-            <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">
+            <div className="mb-4 rounded-md bg-red-50 p-2.5 text-xs text-red-600">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label
                 htmlFor="name"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-xs font-medium text-gray-600 mb-1"
               >
                 Full Name
               </label>
@@ -61,7 +61,7 @@ export default function RegisterPage() {
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 placeholder-gray-400 transition-colors focus:border-violet-400 focus:ring-2 focus:ring-violet-100 focus:outline-none"
+                className="block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 placeholder-gray-400 transition-colors focus:border-amber-400 focus:ring-1 focus:ring-amber-200 focus:outline-none"
                 placeholder="Jane Doe"
               />
             </div>
@@ -69,7 +69,7 @@ export default function RegisterPage() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-xs font-medium text-gray-600 mb-1"
               >
                 Email
               </label>
@@ -79,7 +79,7 @@ export default function RegisterPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 placeholder-gray-400 transition-colors focus:border-violet-400 focus:ring-2 focus:ring-violet-100 focus:outline-none"
+                className="block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 placeholder-gray-400 transition-colors focus:border-amber-400 focus:ring-1 focus:ring-amber-200 focus:outline-none"
                 placeholder="jane@example.com"
               />
             </div>
@@ -87,7 +87,7 @@ export default function RegisterPage() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-xs font-medium text-gray-600 mb-1"
               >
                 Password
               </label>
@@ -98,7 +98,7 @@ export default function RegisterPage() {
                 minLength={6}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 placeholder-gray-400 transition-colors focus:border-violet-400 focus:ring-2 focus:ring-violet-100 focus:outline-none"
+                className="block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 placeholder-gray-400 transition-colors focus:border-amber-400 focus:ring-1 focus:ring-amber-200 focus:outline-none"
                 placeholder="At least 6 characters"
               />
             </div>
@@ -106,7 +106,7 @@ export default function RegisterPage() {
             <div>
               <label
                 htmlFor="confirmPassword"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-xs font-medium text-gray-600 mb-1"
               >
                 Confirm Password
               </label>
@@ -117,24 +117,24 @@ export default function RegisterPage() {
                 minLength={6}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 placeholder-gray-400 transition-colors focus:border-violet-400 focus:ring-2 focus:ring-violet-100 focus:outline-none"
+                className="block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 placeholder-gray-400 transition-colors focus:border-amber-400 focus:ring-1 focus:ring-amber-200 focus:outline-none"
                 placeholder="Repeat your password"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full rounded-lg bg-gradient-to-r from-violet-500 to-purple-600 px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 focus:ring-2 focus:ring-violet-200 focus:outline-none cursor-pointer"
+              className="w-full rounded-md bg-amber-400 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-amber-500 focus:ring-2 focus:ring-amber-200 focus:outline-none cursor-pointer"
             >
               Create Account
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-gray-500">
+          <p className="mt-5 text-center text-xs text-gray-500">
             Already have an account?{" "}
             <Link
               to="/login"
-              className="font-medium text-violet-600 hover:text-violet-500"
+              className="font-medium text-amber-600 hover:text-amber-500"
             >
               Sign in
             </Link>

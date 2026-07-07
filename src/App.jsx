@@ -11,6 +11,7 @@ import TeamDetailPage from "./pages/TeamDetailPage";
 import ProjectsPage from "./pages/ProjectsPage";
 import CreateProjectPage from "./pages/CreateProjectPage";
 import ProjectDetailPage from "./pages/ProjectDetailPage";
+import TaskDetailPage from "./pages/TaskDetailPage";
 
 function App() {
   const { user } = useAuth();
@@ -42,6 +43,7 @@ function App() {
         <Route path="/projects" element={<ProjectsPage />} />
         <Route path="/projects/new" element={<CreateProjectPage />} />
         <Route path="/projects/:projectId" element={<ProjectDetailPage />} />
+        <Route path="/tasks/:taskId" element={<TaskDetailPage />} />
       </Route>
 
       {/* Default redirect */}
