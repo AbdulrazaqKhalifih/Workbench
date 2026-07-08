@@ -207,7 +207,7 @@ CREATE TABLE task (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 
     CONSTRAINT chk_task_status CHECK (
-      status IN ('TO_DO', 'IN_PROGRESS', 'DONE')
+      status IN ('TODO', 'IN_PROGRESS', 'DONE')
       ),
 
     CONSTRAINT fk_task_project
