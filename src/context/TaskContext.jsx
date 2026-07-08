@@ -14,28 +14,37 @@ export function TaskProvider({ children }) {
     ...(token && { Authorization: `Bearer ${token}` }),
   };
 
-  const fetchTasksByProject = useCallback(async (projectId) => {
-    try {
-      setLoading(true);
-      const response = await fetch(
-        `${API_BASE_URL}/tasks/project/${projectId}`,
-        { headers },
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setTasks(data);
-        return data;
+  const fetchTasksByProject = useCallback(
+    async (projectId) => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `${API_BASE_URL}/tasks/project/${projectId}`,
+          { headers },
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setTasks(data);
+          return data;
+        }
+        return [];
+      } catch (error) {
+        console.error("Failed to fetch tasks:", error);
+        return [];
+      } finally {
+        setLoading(false);
       }
-      return [];
-    } catch (error) {
-      console.error("Failed to fetch tasks:", error);
-      return [];
-    } finally {
-      setLoading(false);
-    }
-  }, [headers]);
+    },
+    [headers],
+  );
 
-  const createTask = async (title, description, projectId, assigneeId, dueDate) => {
+  const createTask = async (
+    title,
+    description,
+    projectId,
+    assigneeId,
+    dueDate,
+  ) => {
     try {
       const response = await fetch(`${API_BASE_URL}/tasks`, {
         method: "POST",
@@ -101,23 +110,26 @@ export function TaskProvider({ children }) {
   // --- Comments ---
   const [comments, setComments] = useState([]);
 
-  const fetchComments = useCallback(async (taskId) => {
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/comments/task/${taskId}`,
-        { headers },
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setComments(data);
-        return data;
+  const fetchComments = useCallback(
+    async (taskId) => {
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/comments/task/${taskId}`,
+          { headers },
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setComments(data);
+          return data;
+        }
+        return [];
+      } catch (error) {
+        console.error("Failed to fetch comments:", error);
+        return [];
       }
-      return [];
-    } catch (error) {
-      console.error("Failed to fetch comments:", error);
-      return [];
-    }
-  }, [headers]);
+    },
+    [headers],
+  );
 
   const addComment = async (text, taskId) => {
     try {

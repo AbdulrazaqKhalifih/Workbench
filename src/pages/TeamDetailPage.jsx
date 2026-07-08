@@ -32,12 +32,15 @@ export default function TeamDetailPage() {
 
     const loadTeam = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/api/v1/teams/${teamId}`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        const response = await fetch(
+          `http://localhost:8080/api/v1/teams/${teamId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
           },
-        });
+        );
 
         if (response.ok) {
           setRemoteTeam(await response.json());
@@ -117,14 +120,14 @@ export default function TeamDetailPage() {
 
       <div className="mb-5 flex items-center justify-between">
         <div>
-          <h1 className="text-base font-semibold text-gray-900">{displayedTeam.name}</h1>
+          <h1 className="text-base font-semibold text-gray-900">
+            {displayedTeam.name}
+          </h1>
           <p className="mt-0.5 text-xs text-gray-500">Team workspace</p>
         </div>
         <span
           className={`rounded px-2 py-0.5 text-[10px] font-medium capitalize ${
-            isAdmin
-              ? "bg-amber-50 text-amber-700"
-              : "bg-gray-100 text-gray-600"
+            isAdmin ? "bg-amber-50 text-amber-700" : "bg-gray-100 text-gray-600"
           }`}
         >
           {String(myRole || "member").toLowerCase()}
@@ -159,7 +162,9 @@ export default function TeamDetailPage() {
             </form>
           )}
 
-          {addError && <p className="mb-2 text-[11px] text-red-600">{addError}</p>}
+          {addError && (
+            <p className="mb-2 text-[11px] text-red-600">{addError}</p>
+          )}
           {addSuccess && (
             <p className="mb-2 text-[11px] text-emerald-600">{addSuccess}</p>
           )}
@@ -218,7 +223,9 @@ export default function TeamDetailPage() {
               <FolderKanban className="mx-auto mb-1.5 h-5 w-5 text-gray-300" />
               <p className="text-xs">No projects yet.</p>
               {isAdmin && (
-                <p className="mt-0.5 text-[11px]">Create a project to get started.</p>
+                <p className="mt-0.5 text-[11px]">
+                  Create a project to get started.
+                </p>
               )}
             </div>
           ) : (

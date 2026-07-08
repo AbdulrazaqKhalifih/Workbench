@@ -30,8 +30,17 @@ export default function TaskDetailPage() {
   const { taskId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { tasks, fetchTasksByProject, updateTask, deleteTask, comments, fetchComments, addComment, deleteComment } = useTasks();
-  const { getProject, fetchProjects } = useProjects();
+  const {
+    tasks,
+    fetchTasksByProject,
+    updateTask,
+    deleteTask,
+    comments,
+    fetchComments,
+    addComment,
+    deleteComment,
+  } = useTasks();
+  const { getProject } = useProjects();
   const { getTeam } = useTeams();
 
   const [commentText, setCommentText] = useState("");
@@ -40,15 +49,6 @@ export default function TaskDetailPage() {
 
   // Find task from context
   const task = tasks.find((t) => String(t.id) === String(taskId));
-
-  // Load tasks if not loaded
-  useEffect(() => {
-    if (!task) {
-      fetchProjects().then(() => {
-        // find project from all projects
-      });
-    }
-  }, [taskId]);
 
   useEffect(() => {
     if (task?.projectId) {
@@ -66,12 +66,14 @@ export default function TaskDetailPage() {
   const team = project ? getTeam(project.teamId) : null;
   const teamMembers = team?.members || [];
 
-  const assigneeName = teamMembers.find(
-    (m) => String(m.userId) === String(task?.assigneeId),
-  )?.userName || task?.assigneeName;
+  const assigneeName =
+    teamMembers.find((m) => String(m.userId) === String(task?.assigneeId))
+      ?.userName || task?.assigneeName;
 
   const isAdmin = team?.members?.some(
-    (m) => String(m.userId) === String(user.id) && String(m.role).toUpperCase() === "ADMIN",
+    (m) =>
+      String(m.userId) === String(user.id) &&
+      String(m.role).toUpperCase() === "ADMIN",
   );
 
   const handleStatusChange = async (newStatus) => {
@@ -100,7 +102,11 @@ export default function TaskDetailPage() {
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
     const d = new Date(dateStr);
-    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    return d.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
   };
 
   const formatDateTime = (dateStr) => {
@@ -154,7 +160,9 @@ export default function TaskDetailPage() {
       <div className="rounded-md border border-gray-200 bg-white p-5 mb-4">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
-            <h1 className="text-sm font-semibold text-gray-900">{task.title}</h1>
+            <h1 className="text-sm font-semibold text-gray-900">
+              {task.title}
+            </h1>
             {task.description && (
               <p className="mt-2 text-xs text-gray-600 leading-relaxed whitespace-pre-wrap">
                 {task.description}
@@ -167,7 +175,9 @@ export default function TaskDetailPage() {
         <div className="mt-4 flex flex-wrap items-center gap-4">
           {/* Status */}
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-gray-500 uppercase tracking-wider font-medium">Status</span>
+            <span className="text-[10px] text-gray-500 uppercase tracking-wider font-medium">
+              Status
+            </span>
             <select
               value={task.status}
               onChange={(e) => handleStatusChange(e.target.value)}
@@ -175,7 +185,9 @@ export default function TaskDetailPage() {
               className={`rounded px-2 py-0.5 text-[11px] font-medium border-0 cursor-pointer focus:ring-1 focus:ring-amber-200 ${STATUS_BADGE[task.status] || "bg-gray-100 text-gray-600"}`}
             >
               {STATUS_OPTIONS.map((opt) => (
-                <option key={opt.key} value={opt.key}>{opt.label}</option>
+                <option key={opt.key} value={opt.key}>
+                  {opt.label}
+                </option>
               ))}
             </select>
           </div>
@@ -192,14 +204,18 @@ export default function TaskDetailPage() {
           {task.dueDate && (
             <div className="flex items-center gap-1.5">
               <Calendar className="h-3 w-3 text-gray-400" />
-              <span className="text-[11px] text-gray-600">{formatDate(task.dueDate)}</span>
+              <span className="text-[11px] text-gray-600">
+                {formatDate(task.dueDate)}
+              </span>
             </div>
           )}
 
           {/* Created */}
           <div className="flex items-center gap-1.5">
             <Clock className="h-3 w-3 text-gray-400" />
-            <span className="text-[11px] text-gray-500">Created {formatDateTime(task.createdAt)}</span>
+            <span className="text-[11px] text-gray-500">
+              Created {formatDateTime(task.createdAt)}
+            </span>
           </div>
         </div>
 
@@ -267,7 +283,10 @@ export default function TaskDetailPage() {
         </div>
 
         {/* Add comment */}
-        <form onSubmit={handleAddComment} className="px-5 py-3 border-t border-gray-100">
+        <form
+          onSubmit={handleAddComment}
+          className="px-5 py-3 border-t border-gray-100"
+        >
           <div className="flex gap-2">
             <input
               type="text"

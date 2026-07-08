@@ -18,9 +18,7 @@ export default function CreateProjectPage() {
   const navigate = useNavigate();
 
   const userTeams = teams.filter((t) => {
-    const member = t.members?.find(
-      (m) => String(m.userId) === String(user.id),
-    );
+    const member = t.members?.find((m) => String(m.userId) === String(user.id));
     return Boolean(member);
   });
 
@@ -43,7 +41,9 @@ export default function CreateProjectPage() {
         Back to Projects
       </Link>
 
-      <h1 className="text-base font-semibold text-gray-900 mb-4">Create New Project</h1>
+      <h1 className="text-base font-semibold text-gray-900 mb-4">
+        Create New Project
+      </h1>
 
       <form
         onSubmit={handleSubmit}

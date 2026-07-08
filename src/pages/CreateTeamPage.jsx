@@ -31,7 +31,9 @@ export default function CreateTeamPage() {
         Back to Teams
       </Link>
 
-      <h1 className="text-base font-semibold text-gray-900 mb-4">Create New Team</h1>
+      <h1 className="text-base font-semibold text-gray-900 mb-4">
+        Create New Team
+      </h1>
 
       <form
         onSubmit={handleSubmit}

@@ -38,8 +38,12 @@ export default function DashboardPage() {
               <Users className="h-4 w-4 text-amber-500" />
             </div>
             <div>
-              <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">Teams</p>
-              <p className="text-lg font-semibold text-gray-900 mt-0.5">{userTeams.length}</p>
+              <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">
+                Teams
+              </p>
+              <p className="text-lg font-semibold text-gray-900 mt-0.5">
+                {userTeams.length}
+              </p>
             </div>
           </div>
         </div>
@@ -49,8 +53,12 @@ export default function DashboardPage() {
               <FolderKanban className="h-4 w-4 text-amber-500" />
             </div>
             <div>
-              <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">Projects</p>
-              <p className="text-lg font-semibold text-gray-900 mt-0.5">{userProjects.length}</p>
+              <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">
+                Projects
+              </p>
+              <p className="text-lg font-semibold text-gray-900 mt-0.5">
+                {userProjects.length}
+              </p>
             </div>
           </div>
         </div>
@@ -60,8 +68,12 @@ export default function DashboardPage() {
               <ListTodo className="h-4 w-4 text-amber-500" />
             </div>
             <div>
-              <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">Active Tasks</p>
-              <p className="text-lg font-semibold text-gray-900 mt-0.5">{totalTasks}</p>
+              <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">
+                Active Tasks
+              </p>
+              <p className="text-lg font-semibold text-gray-900 mt-0.5">
+                {totalTasks}
+              </p>
             </div>
           </div>
         </div>
@@ -95,11 +107,14 @@ export default function DashboardPage() {
                     <div className="flex h-6 w-6 items-center justify-center rounded bg-gray-100">
                       <Users className="h-3 w-3 text-gray-500" />
                     </div>
-                    <p className="text-xs font-medium text-gray-900">{team.name}</p>
+                    <p className="text-xs font-medium text-gray-900">
+                      {team.name}
+                    </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] text-gray-400">
-                      {team.members?.length || 0} member{(team.members?.length || 0) !== 1 ? "s" : ""}
+                      {team.members?.length || 0} member
+                      {(team.members?.length || 0) !== 1 ? "s" : ""}
                     </span>
                     <span className="text-[10px] text-amber-500">→</span>
                   </div>

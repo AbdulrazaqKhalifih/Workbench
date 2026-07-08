@@ -50,7 +50,9 @@ export default function Layout() {
           <div className="flex h-7 w-7 items-center justify-center rounded bg-amber-400">
             <Wrench className="h-3.5 w-3.5 text-white" />
           </div>
-          <span className="text-sm font-bold tracking-tight text-gray-800">Workbench</span>
+          <span className="text-sm font-bold tracking-tight text-gray-800">
+            Workbench
+          </span>
         </div>
 
         {/* Navigation */}
@@ -92,10 +94,16 @@ export default function Layout() {
                 {user?.name?.charAt(0)?.toUpperCase() || "U"}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-gray-800 truncate">{user?.name}</p>
-                <p className="text-[10px] text-gray-400 truncate">{user?.email}</p>
+                <p className="text-xs font-medium text-gray-800 truncate">
+                  {user?.name}
+                </p>
+                <p className="text-[10px] text-gray-400 truncate">
+                  {user?.email}
+                </p>
               </div>
-              <ChevronDown className={`h-3 w-3 text-gray-400 transition-transform ${userMenuOpen ? "rotate-180" : ""}`} />
+              <ChevronDown
+                className={`h-3 w-3 text-gray-400 transition-transform ${userMenuOpen ? "rotate-180" : ""}`}
+              />
             </button>
 
             {userMenuOpen && (

@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: workbench
       POSTGRES_PASSWORD: workbench
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - workbench_pg:/var/lib/postgresql
 
@@ -16,13 +16,13 @@ services:
     container_name: workbench-redis
     ports:
       - "6379:6379"
-    command: [ "redis-server", "--appendonly", "no" ]
+    command: ["redis-server", "--appendonly", "no"]
 
   mailpit:
     image: axllent/mailpit:latest
     ports:
-      - "1025:1025"   # SMTP
-      - "8025:8025"   # Web UI
+      - "1025:1025" # SMTP
+      - "8025:8025" # Web UI
 
 volumes:
   workbench_pg:
