@@ -4,6 +4,9 @@ import {
   LayoutDashboard,
   Users,
   FolderKanban,
+  ListTodo,
+  Bell,
+  Settings,
   Wrench,
   LogOut,
   Menu,
@@ -15,6 +18,12 @@ const navItems = [
   { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { path: "/teams", label: "Teams", icon: Users },
   { path: "/projects", label: "Projects", icon: FolderKanban },
+  { path: "/my-tasks", label: "My Tasks", icon: ListTodo },
+  { path: "/notifications", label: "Notifications", icon: Bell },
+];
+
+const bottomNavItems = [
+  { path: "/settings", label: "Settings", icon: Settings },
 ];
 
 export default function Layout() {
@@ -64,7 +73,11 @@ export default function Layout() {
               (item.path === "/teams" &&
                 location.pathname.startsWith("/teams")) ||
               (item.path === "/projects" &&
-                location.pathname.startsWith("/projects"));
+                location.pathname.startsWith("/projects")) ||
+              (item.path === "/my-tasks" &&
+                location.pathname.startsWith("/my-tasks")) ||
+              (item.path === "/notifications" &&
+                location.pathname.startsWith("/notifications"));
             return (
               <Link
                 key={item.path}
@@ -81,6 +94,29 @@ export default function Layout() {
               </Link>
             );
           })}
+
+          {/* Bottom nav */}
+          <div className="pt-4 mt-4 border-t border-gray-100">
+            {bottomNavItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname.startsWith(item.path);
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center gap-2.5 rounded-md px-3 py-2 text-xs font-medium transition-all ${
+                    isActive
+                      ? "bg-amber-50 text-amber-700"
+                      : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                  }`}
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
         </nav>
 
         {/* User section */}

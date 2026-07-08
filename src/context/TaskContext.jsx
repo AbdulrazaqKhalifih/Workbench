@@ -53,6 +53,36 @@ export function TaskProvider({ children }) {
     [headers],
   );
 
+  const fetchTasksByAssignee = useCallback(
+    async (assigneeId) => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `${API_BASE_URL}/tasks/assignee/${assigneeId}`,
+          { headers },
+        );
+        if (response.status === 403) {
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("user");
+          window.location.reload();
+          return [];
+        }
+        if (response.ok) {
+          const data = await response.json();
+          setTasks(data);
+          return data;
+        }
+        return [];
+      } catch (error) {
+        console.error("Failed to fetch tasks:", error);
+        return [];
+      } finally {
+        setLoading(false);
+      }
+    },
+    [headers],
+  );
+
   const createTask = async (
     title,
     description,
@@ -200,6 +230,7 @@ export function TaskProvider({ children }) {
         tasks,
         loading,
         fetchTasksByProject,
+        fetchTasksByAssignee,
         createTask,
         updateTask,
         deleteTask,
