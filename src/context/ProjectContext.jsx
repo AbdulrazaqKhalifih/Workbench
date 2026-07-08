@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useMemo } from "react";
 import { useAuth } from "./AuthContext";
 
 const ProjectContext = createContext(null);
@@ -9,10 +9,13 @@ export function ProjectProvider({ children }) {
   const [loading, setLoading] = useState(false);
   const { token } = useAuth();
 
-  const headers = {
-    "Content-Type": "application/json",
-    ...(token && { Authorization: `Bearer ${token}` }),
-  };
+  const headers = useMemo(
+    () => ({
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
+    }),
+    [token],
+  );
 
   // Fetch projects on mount or when token changes
   useEffect(() => {
@@ -25,6 +28,12 @@ export function ProjectProvider({ children }) {
     try {
       setLoading(true);
       const response = await fetch(`${API_BASE_URL}/projects`, { headers });
+      if (response.status === 403) {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("user");
+        window.location.reload();
+        return;
+      }
       if (response.ok) {
         const data = await response.json();
         setProjects(data);
@@ -56,7 +65,8 @@ export function ProjectProvider({ children }) {
   const getProjectsByTeam = (teamId) =>
     projects.filter((project) => String(project.teamId) === String(teamId));
 
-  const getProject = (projectId) => projects.find((p) => p.id === projectId);
+  const getProject = (projectId) =>
+    projects.find((p) => String(p.id) === String(projectId));
 
   return (
     <ProjectContext.Provider

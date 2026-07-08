@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useMemo,
+} from "react";
 import { useAuth } from "./AuthContext";
 
 const TaskContext = createContext(null);
@@ -9,10 +15,13 @@ export function TaskProvider({ children }) {
   const [loading, setLoading] = useState(false);
   const { token } = useAuth();
 
-  const headers = {
-    "Content-Type": "application/json",
-    ...(token && { Authorization: `Bearer ${token}` }),
-  };
+  const headers = useMemo(
+    () => ({
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
+    }),
+    [token],
+  );
 
   const fetchTasksByProject = useCallback(
     async (projectId) => {
@@ -22,6 +31,12 @@ export function TaskProvider({ children }) {
           `${API_BASE_URL}/tasks/project/${projectId}`,
           { headers },
         );
+        if (response.status === 403) {
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("user");
+          window.location.reload();
+          return [];
+        }
         if (response.ok) {
           const data = await response.json();
           setTasks(data);
@@ -62,8 +77,12 @@ export function TaskProvider({ children }) {
         setTasks((prev) => [...prev, newTask]);
         return newTask;
       }
-      const err = await response.json();
-      return { error: err.message || "Failed to create task" };
+      try {
+        const err = await response.json();
+        return { error: err.message || err.error || "Failed to create task" };
+      } catch {
+        return { error: "Failed to create task" };
+      }
     } catch (error) {
       return { error: error.message || "Failed to create task" };
     }
@@ -117,6 +136,12 @@ export function TaskProvider({ children }) {
           `${API_BASE_URL}/comments/task/${taskId}`,
           { headers },
         );
+        if (response.status === 403) {
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("user");
+          window.location.reload();
+          return [];
+        }
         if (response.ok) {
           const data = await response.json();
           setComments(data);

@@ -8,17 +8,34 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Restore user from localStorage on mount
+  // Restore user from localStorage on mount (skip if token expired)
   useEffect(() => {
     const savedToken = localStorage.getItem("accessToken");
     const savedUser = localStorage.getItem("user");
     if (savedToken && savedUser) {
+      try {
+        const payload = JSON.parse(atob(savedToken.split(".")[1]));
+        if (payload.exp * 1000 < Date.now()) {
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("user");
+          return;
+        }
+      } catch {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("user");
+        return;
+      }
       setToken(savedToken);
       setUser(JSON.parse(savedUser));
     }
   }, []);
 
-  const register = async (name, email, password, confirmPassword = password) => {
+  const register = async (
+    name,
+    email,
+    password,
+    confirmPassword = password,
+  ) => {
     try {
       setLoading(true);
       const response = await fetch(`${API_BASE_URL}/auth/register`, {
@@ -101,7 +118,9 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout, loading }}>
+    <AuthContext.Provider
+      value={{ user, token, login, register, logout, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );

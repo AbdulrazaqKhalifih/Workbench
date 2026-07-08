@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useMemo } from "react";
 import { useAuth } from "./AuthContext";
 
 const TeamContext = createContext(null);
@@ -9,10 +9,13 @@ export function TeamProvider({ children }) {
   const [loading, setLoading] = useState(false);
   const { token, user } = useAuth();
 
-  const headers = {
-    "Content-Type": "application/json",
-    ...(token && { Authorization: `Bearer ${token}` }),
-  };
+  const headers = useMemo(
+    () => ({
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
+    }),
+    [token],
+  );
 
   // Fetch teams on mount or when token changes
   useEffect(() => {
@@ -25,7 +28,12 @@ export function TeamProvider({ children }) {
     const response = await fetch(`${API_BASE_URL}/teams/${teamId}/members`, {
       headers,
     });
-
+    if (response.status === 403) {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("user");
+      window.location.reload();
+      return [];
+    }
     if (!response.ok) {
       return [];
     }
@@ -38,20 +46,29 @@ export function TeamProvider({ children }) {
       const members = await fetchTeamMembers(teamId);
       setTeams((prev) =>
         prev.map((team) =>
-          String(team.id) === String(teamId)
-            ? { ...team, members }
-            : team,
+          String(team.id) === String(teamId) ? { ...team, members } : team,
         ),
       );
     } catch (error) {
-      console.error(`Failed to hydrate team members for team ${teamId}:`, error);
+      console.error(
+        `Failed to hydrate team members for team ${teamId}:`,
+        error,
+      );
     }
   };
 
   const fetchTeams = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE_URL}/teams/my/teams`, { headers });
+      const response = await fetch(`${API_BASE_URL}/teams/my/teams`, {
+        headers,
+      });
+      if (response.status === 403) {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("user");
+        window.location.reload();
+        return;
+      }
       if (response.ok) {
         const data = await response.json();
         const enrichedTeams = await Promise.all(
@@ -126,15 +143,27 @@ export function TeamProvider({ children }) {
 
   const getUserRole = (teamId, userId) => {
     const team = teams.find((t) => String(t.id) === String(teamId));
-    const member = team?.members?.find((m) => String(m.userId) === String(userId));
+    const member = team?.members?.find(
+      (m) => String(m.userId) === String(userId),
+    );
     return member?.role ? String(member.role).toUpperCase() : null;
   };
 
-  const getTeam = (teamId) => teams.find((t) => String(t.id) === String(teamId));
+  const getTeam = (teamId) =>
+    teams.find((t) => String(t.id) === String(teamId));
 
   return (
     <TeamContext.Provider
-      value={{ teams, createTeam, getTeam, getUserRole, addMember, fetchTeams, fetchTeamMembers, loading }}
+      value={{
+        teams,
+        createTeam,
+        getTeam,
+        getUserRole,
+        addMember,
+        fetchTeams,
+        fetchTeamMembers,
+        loading,
+      }}
     >
       {children}
     </TeamContext.Provider>
