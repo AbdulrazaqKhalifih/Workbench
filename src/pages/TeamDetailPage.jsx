@@ -5,6 +5,9 @@ import { useAuth } from "../context/AuthContext";
 import { useTeams } from "../context/TeamContext";
 import { useProjects } from "../context/ProjectContext";
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:8080/api/v1";
+
 export default function TeamDetailPage() {
   const { teamId } = useParams();
   const { user } = useAuth();
@@ -32,15 +35,12 @@ export default function TeamDetailPage() {
 
     const loadTeam = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:8080/api/v1/teams/${teamId}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
+        const response = await fetch(`${API_BASE_URL}/teams/${teamId}`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
-        );
+        });
 
         if (response.ok) {
           setRemoteTeam(await response.json());
@@ -61,7 +61,7 @@ export default function TeamDetailPage() {
     setAddSuccess("");
 
     const response = await fetch(
-      `http://localhost:8080/api/v1/users/by-email?email=${encodeURIComponent(addEmail)}`,
+      `${API_BASE_URL}/users/by-email?email=${encodeURIComponent(addEmail)}`,
       {
         headers: {
           "Content-Type": "application/json",
