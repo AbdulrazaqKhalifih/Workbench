@@ -25,6 +25,7 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     public TaskDTO createTask(CreateTaskDTO dto) {
         Project project = projectRepository.findById(dto.getProjectId())
@@ -44,6 +45,11 @@ public class TaskService {
         }
 
         Task saved = taskRepository.save(task);
+
+        if (task.getAssignee() != null) {
+            notificationService.createTaskAssignedNotification(task.getAssignee(), task);
+        }
+
         return TaskDTO.fromEntity(saved);
     }
 
@@ -79,25 +85,27 @@ public class TaskService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
 
-        if (dto.getTitle() != null) {
-            task.setTitle(dto.getTitle());
-        }
-        if (dto.getDescription() != null) {
-            task.setDescription(dto.getDescription());
-        }
-        if (dto.getStatus() != null) {
-            task.setStatus(TaskStatus.valueOf(dto.getStatus().toUpperCase()));
-        }
-        if (dto.getDueDate() != null) {
-            task.setDueDate(dto.getDueDate());
-        }
-        if (dto.getAssigneeId() != null) {
+        Long previousAssigneeId = task.getAssignee() != null ? task.getAssignee().getId() : null;
+
+        if (dto.getTitle() != null) task.setTitle(dto.getTitle());
+        if (dto.getDescription() != null) task.setDescription(dto.getDescription());
+        if (dto.getStatus() != null) task.setStatus(TaskStatus.valueOf(dto.getStatus().toUpperCase()));
+        if (dto.getDueDate() != null) task.setDueDate(dto.getDueDate());
+
+        boolean assigneeChanged = false;
+        if (dto.getAssigneeId() != null && !dto.getAssigneeId().equals(previousAssigneeId)) {
             User assignee = userRepository.findById(dto.getAssigneeId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
             task.setAssignee(assignee);
+            assigneeChanged = true;
         }
 
         Task updated = taskRepository.save(task);
+
+        if (assigneeChanged) {
+            notificationService.createTaskAssignedNotification(updated.getAssignee(), updated);
+        }
+
         return TaskDTO.fromEntity(updated);
     }
 
