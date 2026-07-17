@@ -1,3 +1,6 @@
+server:
+  port: ${PORT:8080}
+
 spring:
   config:
     import: optional:file:.env[.properties]
@@ -21,6 +24,7 @@ spring:
 
   data:
     redis:
+      url: ${REDIS_URL:}
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
@@ -41,8 +45,6 @@ spring:
     port: ${SMTP_PORT:1025}
     username: ${SMTP_USER:}
     password: ${SMTP_PASS:}
-
-# Token related configs
 
 identity:
   app:
@@ -69,7 +71,6 @@ identity:
       reset:
         subject: "Your Workbench password reset code"
 
-# redis config
 app:
   redis:
     enabled: true
