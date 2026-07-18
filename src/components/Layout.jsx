@@ -13,6 +13,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { useNotifications } from "../context/NotificationContext";
 
 const navItems = [
   { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -28,6 +29,7 @@ const bottomNavItems = [
 
 export default function Layout() {
   const { user, logout } = useAuth();
+  const { unreadCount } = useNotifications();
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -91,7 +93,12 @@ export default function Layout() {
                 onClick={() => setSidebarOpen(false)}
               >
                 <Icon className="h-3.5 w-3.5" />
-                {item.label}
+                <span className="flex-1">{item.label}</span>
+                {item.path === "/notifications" && unreadCount > 0 && (
+                  <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-amber-400 px-1 text-[9px] font-bold text-white leading-none">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
               </Link>
             );
           })}

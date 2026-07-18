@@ -6,6 +6,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { TeamProvider } from "./context/TeamContext";
 import { ProjectProvider } from "./context/ProjectContext";
 import { TaskProvider } from "./context/TaskContext";
+import { NotificationProvider } from "./context/NotificationContext";
 import App from "./App.jsx";
 
 createRoot(document.getElementById("root")).render(
@@ -15,7 +16,9 @@ createRoot(document.getElementById("root")).render(
         <TeamProvider>
           <ProjectProvider>
             <TaskProvider>
-              <App />
+              <NotificationProvider>
+                <App />
+              </NotificationProvider>
             </TaskProvider>
           </ProjectProvider>
         </TeamProvider>
