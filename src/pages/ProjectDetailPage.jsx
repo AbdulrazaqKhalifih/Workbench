@@ -9,6 +9,8 @@ import {
   X,
   Loader2,
   ChevronDown,
+  Trash2,
+  Edit2,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useProjects } from "../context/ProjectContext";
@@ -33,8 +35,14 @@ const STATUS_BADGE = {
 
 export default function ProjectDetailPage() {
   const { projectId } = useParams();
+  const navigate = useNavigate();
   const { user } = useAuth();
-  const { getProject, loading: projectLoading } = useProjects();
+  const {
+    getProject,
+    deleteProject,
+    updateProject,
+    loading: projectLoading,
+  } = useProjects();
   const { getTeam } = useTeams();
   const {
     tasks,
@@ -54,6 +62,10 @@ export default function ProjectDetailPage() {
   });
   const [editTask, setEditTask] = useState(null);
   const [createError, setCreateError] = useState("");
+  const [showEditProjectModal, setShowEditProjectModal] = useState(false);
+  const [editProjectName, setEditProjectName] = useState("");
+  const [editProjectDesc, setEditProjectDesc] = useState("");
+  const [deletingProject, setDeletingProject] = useState(false);
 
   useEffect(() => {
     if (projectId) {
@@ -114,6 +126,31 @@ export default function ProjectDetailPage() {
     setEditTask(null);
   };
 
+  const handleDeleteProject = async () => {
+    if (
+      !window.confirm(
+        "Delete this project permanently? All tasks will also be deleted.",
+      )
+    )
+      return;
+    setDeletingProject(true);
+    const success = await deleteProject(projectId);
+    setDeletingProject(false);
+    if (success) {
+      navigate("/projects");
+    }
+  };
+
+  const handleEditProject = async (e) => {
+    e.preventDefault();
+    if (!editProjectName.trim()) return;
+    await updateProject(projectId, {
+      name: editProjectName,
+      description: editProjectDesc,
+    });
+    setShowEditProjectModal(false);
+  };
+
   if (projectLoading && !project) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -171,14 +208,29 @@ export default function ProjectDetailPage() {
       {/* Project Info */}
       <div className="mb-5 rounded-md border border-gray-200 bg-white p-4">
         <div className="flex items-start justify-between">
-          <div className="flex items-start gap-3">
+          <div className="flex items-start gap-3 flex-1 min-w-0">
             <div className="flex h-8 w-8 items-center justify-center rounded bg-amber-50 text-amber-500 flex-shrink-0 mt-0.5">
               <FolderKanban className="h-4 w-4" />
             </div>
-            <div>
-              <h1 className="text-sm font-semibold text-gray-900">
-                {project.name}
-              </h1>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <h1 className="text-sm font-semibold text-gray-900 truncate">
+                  {project.name}
+                </h1>
+                {isAdmin && (
+                  <button
+                    onClick={() => {
+                      setEditProjectName(project.name);
+                      setEditProjectDesc(project.description || "");
+                      setShowEditProjectModal(true);
+                    }}
+                    className="rounded p-0.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors flex-shrink-0 cursor-pointer"
+                    title="Edit project"
+                  >
+                    <Edit2 className="h-3 w-3" />
+                  </button>
+                )}
+              </div>
               <p className="mt-0.5 text-[11px] text-gray-500">
                 {project.description || "Project workspace"}
               </p>
@@ -195,13 +247,29 @@ export default function ProjectDetailPage() {
               </div>
             </div>
           </div>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center gap-1 rounded-md bg-amber-400 px-2.5 py-1.5 text-[11px] font-medium text-white transition-colors hover:bg-amber-500 cursor-pointer"
-          >
-            <Plus className="h-3 w-3" />
-            Add Task
-          </button>
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            {isAdmin && (
+              <button
+                onClick={handleDeleteProject}
+                disabled={deletingProject}
+                className="rounded p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer disabled:opacity-40"
+                title="Delete project"
+              >
+                {deletingProject ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Trash2 className="h-3.5 w-3.5" />
+                )}
+              </button>
+            )}
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="inline-flex items-center gap-1 rounded-md bg-amber-400 px-2.5 py-1.5 text-[11px] font-medium text-white transition-colors hover:bg-amber-500 cursor-pointer"
+            >
+              <Plus className="h-3 w-3" />
+              Add Task
+            </button>
+          </div>
         </div>
       </div>
 
@@ -413,6 +481,71 @@ export default function ProjectDetailPage() {
                 <button
                   type="button"
                   onClick={() => setEditTask(null)}
+                  className="rounded-md border border-gray-300 px-3 py-1.5 text-[11px] font-medium text-gray-600 hover:bg-gray-50 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="rounded-md bg-amber-400 px-3 py-1.5 text-[11px] font-medium text-white hover:bg-amber-500 cursor-pointer"
+                >
+                  Save
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Project Modal */}
+      {showEditProjectModal && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[10vh]">
+          <div
+            className="fixed inset-0 bg-black/40"
+            onClick={() => setShowEditProjectModal(false)}
+          />
+          <div className="relative z-10 w-full max-w-md rounded-md border border-gray-200 bg-white shadow-lg">
+            <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
+              <h2 className="text-xs font-semibold text-gray-900">
+                Edit Project
+              </h2>
+              <button
+                onClick={() => setShowEditProjectModal(false)}
+                className="rounded p-0.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+            <form onSubmit={handleEditProject} className="p-4 space-y-3">
+              <div>
+                <label className="block text-[11px] font-medium text-gray-600 mb-1">
+                  Project Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editProjectName}
+                  onChange={(e) => setEditProjectName(e.target.value)}
+                  className="block w-full rounded-md border border-gray-300 px-2.5 py-1.5 text-xs text-gray-900 focus:border-amber-400 focus:ring-1 focus:ring-amber-200 focus:outline-none"
+                  placeholder="Enter project name"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-medium text-gray-600 mb-1">
+                  Description
+                </label>
+                <textarea
+                  rows={2}
+                  value={editProjectDesc}
+                  onChange={(e) => setEditProjectDesc(e.target.value)}
+                  className="block w-full rounded-md border border-gray-300 px-2.5 py-1.5 text-xs text-gray-900 focus:border-amber-400 focus:ring-1 focus:ring-amber-200 focus:outline-none"
+                  placeholder="Enter description"
+                />
+              </div>
+              <div className="flex justify-end gap-1.5 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowEditProjectModal(false)}
                   className="rounded-md border border-gray-300 px-3 py-1.5 text-[11px] font-medium text-gray-600 hover:bg-gray-50 cursor-pointer"
                 >
                   Cancel

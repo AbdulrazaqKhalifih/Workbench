@@ -1,6 +1,16 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
-import { Users, FolderKanban, Plus, ArrowLeft, UserPlus } from "lucide-react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import {
+  Users,
+  FolderKanban,
+  Plus,
+  ArrowLeft,
+  UserPlus,
+  X,
+  Trash2,
+  Edit2,
+  Loader2,
+} from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useTeams } from "../context/TeamContext";
 import { useProjects } from "../context/ProjectContext";
@@ -10,8 +20,17 @@ const API_BASE_URL =
 
 export default function TeamDetailPage() {
   const { teamId } = useParams();
+  const navigate = useNavigate();
   const { user } = useAuth();
-  const { getTeam, addMember, getUserRole, fetchTeamMembers } = useTeams();
+  const {
+    getTeam,
+    addMember,
+    removeMember,
+    deleteTeam,
+    updateTeam,
+    getUserRole,
+    fetchTeamMembers,
+  } = useTeams();
   const { getProjectsByTeam } = useProjects();
 
   const team = getTeam(teamId);
@@ -23,6 +42,10 @@ export default function TeamDetailPage() {
   const [addEmail, setAddEmail] = useState("");
   const [addError, setAddError] = useState("");
   const [addSuccess, setAddSuccess] = useState("");
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const [removingMember, setRemovingMember] = useState(null);
 
   useEffect(() => {
     fetchTeamMembers(teamId);
@@ -89,6 +112,36 @@ export default function TeamDetailPage() {
     setAddEmail("");
   };
 
+  const handleDeleteTeam = async () => {
+    if (!window.confirm("Delete this team permanently? This cannot be undone."))
+      return;
+    setDeleting(true);
+    const success = await deleteTeam(teamId);
+    setDeleting(false);
+    if (success) {
+      navigate("/teams");
+    }
+  };
+
+  const handleEditTeam = async (e) => {
+    e.preventDefault();
+    if (!editName.trim()) return;
+    await updateTeam(teamId, { name: editName });
+    setShowEditModal(false);
+  };
+
+  const handleRemoveMember = async (userId) => {
+    if (
+      !window.confirm(
+        "Remove this member from the team? They can be re-added later.",
+      )
+    )
+      return;
+    setRemovingMember(userId);
+    await removeMember(teamId, userId);
+    setRemovingMember(null);
+  };
+
   if (!displayedTeam) {
     return (
       <div className="px-6 py-12 text-center">
@@ -118,20 +171,52 @@ export default function TeamDetailPage() {
         </Link>
       </div>
 
-      <div className="mb-5 flex items-center justify-between">
-        <div>
-          <h1 className="text-base font-semibold text-gray-900">
-            {displayedTeam.name}
-          </h1>
+      <div className="mb-5 flex items-start justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <h1 className="text-base font-semibold text-gray-900 truncate">
+              {displayedTeam.name}
+            </h1>
+            {isAdmin && (
+              <button
+                onClick={() => {
+                  setEditName(displayedTeam.name);
+                  setShowEditModal(true);
+                }}
+                className="rounded p-0.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors flex-shrink-0 cursor-pointer"
+                title="Edit team name"
+              >
+                <Edit2 className="h-3 w-3" />
+              </button>
+            )}
+          </div>
           <p className="mt-0.5 text-xs text-gray-500">Team workspace</p>
         </div>
-        <span
-          className={`rounded px-2 py-0.5 text-[10px] font-medium capitalize ${
-            isAdmin ? "bg-amber-50 text-amber-700" : "bg-gray-100 text-gray-600"
-          }`}
-        >
-          {String(myRole || "member").toLowerCase()}
-        </span>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <span
+            className={`rounded px-2 py-0.5 text-[10px] font-medium capitalize ${
+              isAdmin
+                ? "bg-amber-50 text-amber-700"
+                : "bg-gray-100 text-gray-600"
+            }`}
+          >
+            {String(myRole || "member").toLowerCase()}
+          </span>
+          {isAdmin && (
+            <button
+              onClick={handleDeleteTeam}
+              disabled={deleting}
+              className="rounded p-1 text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer disabled:opacity-40"
+              title="Delete team"
+            >
+              {deleting ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Trash2 className="h-3.5 w-3.5" />
+              )}
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -175,26 +260,44 @@ export default function TeamDetailPage() {
                 key={m.userId}
                 className="flex items-center justify-between rounded-md border border-gray-100 p-2 transition-colors hover:bg-gray-50"
               >
-                <div className="flex items-center gap-2">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-[9px] font-bold text-white">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-[9px] font-bold text-white flex-shrink-0">
                     {(m.userName || "?").charAt(0).toUpperCase()}
                   </div>
-                  <div>
-                    <p className="text-xs font-medium text-gray-900">
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-gray-900 truncate">
                       {m.userName || "Unknown"}
                     </p>
-                    <p className="text-[10px] text-gray-400">{m.email}</p>
+                    <p className="text-[10px] text-gray-400 truncate">
+                      {m.email}
+                    </p>
                   </div>
                 </div>
-                <span
-                  className={`rounded px-1.5 py-0.5 text-[10px] font-medium capitalize ${
-                    String(m.role).toUpperCase() === "ADMIN"
-                      ? "bg-amber-50 text-amber-700"
-                      : "bg-gray-100 text-gray-600"
-                  }`}
-                >
-                  {String(m.role).toLowerCase()}
-                </span>
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                  <span
+                    className={`rounded px-1.5 py-0.5 text-[10px] font-medium capitalize ${
+                      String(m.role).toUpperCase() === "ADMIN"
+                        ? "bg-amber-50 text-amber-700"
+                        : "bg-gray-100 text-gray-600"
+                    }`}
+                  >
+                    {String(m.role).toLowerCase()}
+                  </span>
+                  {isAdmin && String(m.userId) !== String(user.id) && (
+                    <button
+                      onClick={() => handleRemoveMember(m.userId)}
+                      disabled={removingMember === m.userId}
+                      className="rounded p-0.5 text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors cursor-pointer disabled:opacity-40"
+                      title="Remove member"
+                    >
+                      {removingMember === m.userId ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <X className="h-3 w-3" />
+                      )}
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -245,6 +348,59 @@ export default function TeamDetailPage() {
           )}
         </div>
       </div>
+
+      {/* Edit Team Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[10vh]">
+          <div
+            className="fixed inset-0 bg-black/40"
+            onClick={() => setShowEditModal(false)}
+          />
+          <div className="relative z-10 w-full max-w-md rounded-md border border-gray-200 bg-white shadow-lg">
+            <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
+              <h2 className="text-xs font-semibold text-gray-900">
+                Edit Team Name
+              </h2>
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="rounded p-0.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+            <form onSubmit={handleEditTeam} className="p-4 space-y-3">
+              <div>
+                <label className="block text-[11px] font-medium text-gray-600 mb-1">
+                  Team Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="block w-full rounded-md border border-gray-300 px-2.5 py-1.5 text-xs text-gray-900 focus:border-amber-400 focus:ring-1 focus:ring-amber-200 focus:outline-none"
+                  placeholder="Enter team name"
+                />
+              </div>
+              <div className="flex justify-end gap-1.5 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowEditModal(false)}
+                  className="rounded-md border border-gray-300 px-3 py-1.5 text-[11px] font-medium text-gray-600 hover:bg-gray-50 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="rounded-md bg-amber-400 px-3 py-1.5 text-[11px] font-medium text-white hover:bg-amber-500 cursor-pointer"
+                >
+                  Save
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

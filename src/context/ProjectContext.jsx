@@ -63,6 +63,48 @@ export function ProjectProvider({ children }) {
     }
   };
 
+  const deleteProject = async (projectId) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/projects/${projectId}`, {
+        method: "DELETE",
+        headers,
+      });
+      if (response.ok) {
+        setProjects((prev) =>
+          prev.filter((p) => String(p.id) !== String(projectId)),
+        );
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Failed to delete project:", error);
+      return false;
+    }
+  };
+
+  const updateProject = async (projectId, updates) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/projects/${projectId}`, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify(updates),
+      });
+      if (response.ok) {
+        const updated = await response.json();
+        setProjects((prev) =>
+          prev.map((p) =>
+            String(p.id) === String(projectId) ? { ...p, ...updated } : p,
+          ),
+        );
+        return updated;
+      }
+      return null;
+    } catch (error) {
+      console.error("Failed to update project:", error);
+      return null;
+    }
+  };
+
   const getProjectsByTeam = (teamId) =>
     projects.filter((project) => String(project.teamId) === String(teamId));
 
@@ -74,6 +116,8 @@ export function ProjectProvider({ children }) {
       value={{
         projects,
         createProject,
+        deleteProject,
+        updateProject,
         getProjectsByTeam,
         getProject,
         fetchProjects,

@@ -73,7 +73,8 @@ export default function Layout() {
               (item.path === "/teams" &&
                 location.pathname.startsWith("/teams")) ||
               (item.path === "/projects" &&
-                location.pathname.startsWith("/projects")) ||
+                (location.pathname.startsWith("/projects") ||
+                  location.pathname.startsWith("/tasks"))) ||
               (item.path === "/my-tasks" &&
                 location.pathname.startsWith("/my-tasks")) ||
               (item.path === "/notifications" &&

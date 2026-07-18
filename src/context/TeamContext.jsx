@@ -150,6 +150,70 @@ export function TeamProvider({ children }) {
     return member?.role ? String(member.role).toUpperCase() : null;
   };
 
+  const deleteTeam = async (teamId) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/teams/${teamId}`, {
+        method: "DELETE",
+        headers,
+      });
+      if (response.ok) {
+        setTeams((prev) => prev.filter((t) => String(t.id) !== String(teamId)));
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Failed to delete team:", error);
+      return false;
+    }
+  };
+
+  const updateTeam = async (teamId, updates) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/teams/${teamId}`, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify(updates),
+      });
+      if (response.ok) {
+        const updated = await response.json();
+        setTeams((prev) =>
+          prev.map((t) =>
+            String(t.id) === String(teamId) ? { ...t, ...updated } : t,
+          ),
+        );
+        return updated;
+      }
+      return null;
+    } catch (error) {
+      console.error("Failed to update team:", error);
+      return null;
+    }
+  };
+
+  const removeMember = async (teamId, userId) => {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/teams/${teamId}/members/${userId}`,
+        { method: "DELETE", headers },
+      );
+      if (response.ok) {
+        const updatedMembers = await fetchTeamMembers(teamId);
+        setTeams((prev) =>
+          prev.map((team) =>
+            String(team.id) === String(teamId)
+              ? { ...team, members: updatedMembers }
+              : team,
+          ),
+        );
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Failed to remove member:", error);
+      return false;
+    }
+  };
+
   const getTeam = (teamId) =>
     teams.find((t) => String(t.id) === String(teamId));
 
@@ -161,6 +225,9 @@ export function TeamProvider({ children }) {
         getTeam,
         getUserRole,
         addMember,
+        removeMember,
+        deleteTeam,
+        updateTeam,
         fetchTeams,
         fetchTeamMembers,
         loading,
