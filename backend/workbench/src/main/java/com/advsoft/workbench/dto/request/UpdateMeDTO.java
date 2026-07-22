@@ -14,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateMeDTO {
+    private String username;
     @Email
     private String email;
     private String oldPassword;

@@ -402,14 +402,16 @@ export default function ProjectDetailPage() {
                       ))}
                     </select>
                   ) : (
-                    <div className="rounded-md border border-gray-200 bg-gray-50 px-2.5 py-1.5 text-xs text-gray-500">
-                      {newTask.assigneeId
-                        ? teamMembers.find(
-                            (m) =>
-                              String(m.userId) === String(newTask.assigneeId),
-                          )?.userName || "Assigned"
-                        : "Unassigned"}
-                    </div>
+                    <select
+                      value={newTask.assigneeId}
+                      onChange={(e) =>
+                        setNewTask({ ...newTask, assigneeId: e.target.value })
+                      }
+                      className="block w-full rounded-md border border-gray-300 px-2.5 py-1.5 text-xs text-gray-900 focus:border-amber-400 focus:ring-1 focus:ring-amber-200 focus:outline-none"
+                    >
+                      <option value="">Unassigned</option>
+                      <option value={user.id}>{user.username} (me)</option>
+                    </select>
                   )}
                 </div>
                 <div>
@@ -512,14 +514,16 @@ export default function ProjectDetailPage() {
                       ))}
                     </select>
                   ) : (
-                    <div className="rounded-md border border-gray-200 bg-gray-50 px-2.5 py-1.5 text-xs text-gray-500">
-                      {editTask.assigneeId
-                        ? teamMembers.find(
-                            (m) =>
-                              String(m.userId) === String(editTask.assigneeId),
-                          )?.userName || "Assigned"
-                        : "Unassigned"}
-                    </div>
+                    <select
+                      value={editTask.assigneeId || ""}
+                      onChange={(e) =>
+                        setEditTask({ ...editTask, assigneeId: e.target.value })
+                      }
+                      className="block w-full rounded-md border border-gray-300 px-2.5 py-1.5 text-xs text-gray-900 focus:border-amber-400 focus:ring-1 focus:ring-amber-200 focus:outline-none"
+                    >
+                      <option value="">Unassigned</option>
+                      <option value={user.id}>{user.username} (me)</option>
+                    </select>
                   )}
                 </div>
                 <div>

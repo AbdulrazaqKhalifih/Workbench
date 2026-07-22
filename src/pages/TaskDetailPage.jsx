@@ -8,6 +8,7 @@ import {
   MessageSquare,
   Send,
   Clock,
+  Loader2,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useTasks } from "../context/TaskContext";
@@ -46,6 +47,7 @@ export default function TaskDetailPage() {
   const [commentText, setCommentText] = useState("");
   const [statusUpdating, setStatusUpdating] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [commentsLoadedFor, setCommentsLoadedFor] = useState(null);
 
   // Find task from context
   const task = tasks.find((t) => String(t.id) === String(taskId));
@@ -53,13 +55,13 @@ export default function TaskDetailPage() {
   useEffect(() => {
     if (task?.projectId) {
       fetchTasksByProject(task.projectId);
-      fetchComments(taskId);
     }
-  }, [task?.projectId, taskId, fetchTasksByProject, fetchComments]);
+  }, [task?.projectId, fetchTasksByProject]);
 
-  // Re-fetch when taskId changes
+  // Fetch comments for this task, track which task they belong to
   useEffect(() => {
-    fetchComments(taskId);
+    setCommentsLoadedFor(null); // clear immediately to prevent stale render
+    fetchComments(taskId).then(() => setCommentsLoadedFor(taskId));
   }, [taskId, fetchComments]);
 
   const project = task ? getProject(task.projectId) : null;
@@ -240,13 +242,18 @@ export default function TaskDetailPage() {
         <div className="px-5 py-3 border-b border-gray-100">
           <h2 className="flex items-center gap-1.5 text-xs font-semibold text-gray-900">
             <MessageSquare className="h-3.5 w-3.5 text-amber-500" />
-            Comments ({comments.length})
+            Comments{" "}
+            {commentsLoadedFor === taskId ? `(${comments.length})` : ""}
           </h2>
         </div>
 
         {/* Comment list */}
         <div className="px-5 py-3 space-y-3 max-h-80 overflow-y-auto">
-          {comments.length === 0 ? (
+          {commentsLoadedFor !== taskId ? (
+            <div className="flex justify-center py-4">
+              <Loader2 className="h-4 w-4 text-gray-300 animate-spin" />
+            </div>
+          ) : comments.length === 0 ? (
             <p className="text-[11px] text-gray-400 text-center py-4">
               No comments yet. Start the discussion.
             </p>

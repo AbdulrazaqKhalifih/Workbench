@@ -51,6 +51,9 @@ public class UserService {
         if (updateMeDTO.getEmail() != null) {
             user.changeEmail(updateMeDTO.getEmail());
         }
+        if (updateMeDTO.getUsername() != null && !updateMeDTO.getUsername().isBlank()) {
+            user.changeUsername(updateMeDTO.getUsername());
+        }
         if (updateMeDTO.getStatus() != null &&
                 !(updateMeDTO.getStatus() == UserStatus.ACTIVE) &&
                 !(updateMeDTO.getStatus() == user.getStatus())) {

@@ -39,16 +39,6 @@ export default function MyTasksPage() {
     });
   };
 
-  if (loading && tasks.length === 0) {
-    return (
-      <div className="px-6 py-8 max-w-4xl mx-auto">
-        <div className="flex items-center justify-center py-16">
-          <Loader2 className="h-5 w-5 text-gray-400 animate-spin" />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="px-6 py-8 max-w-4xl mx-auto">
       <div className="mb-5">
@@ -58,7 +48,11 @@ export default function MyTasksPage() {
         </p>
       </div>
 
-      {tasks.length === 0 ? (
+      {loading ? (
+        <div className="flex items-center justify-center py-16 rounded-md border border-gray-200 bg-white">
+          <Loader2 className="h-5 w-5 text-gray-400 animate-spin" />
+        </div>
+      ) : tasks.length === 0 ? (
         <div className="rounded-md border border-gray-200 bg-white px-6 py-12 text-center">
           <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-amber-50">
             <ListTodo className="h-5 w-5 text-amber-500" />
