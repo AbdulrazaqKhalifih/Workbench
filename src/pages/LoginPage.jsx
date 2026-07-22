@@ -33,7 +33,7 @@ export default function LoginPage() {
           <p className="mt-1 text-xs text-gray-500">Sign in to your account</p>
         </div>
 
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm animate-slide-up">
           {error && (
             <div className="mb-4 rounded-md bg-red-50 p-2.5 text-xs text-red-600">
               {error}

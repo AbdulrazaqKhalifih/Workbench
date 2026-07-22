@@ -80,7 +80,7 @@ export default function NotificationsPage() {
           </p>
         </div>
       ) : (
-        <div className="rounded-md border border-gray-200 bg-white divide-y divide-gray-100">
+        <div className="rounded-md border border-gray-200 bg-white divide-y divide-gray-100 stagger-children">
           {sorted.map((notification) => {
             const Icon = NOTIFICATION_ICONS[notification.type] || Bell;
             const colorClass =

@@ -353,10 +353,10 @@ export default function TeamDetailPage() {
       {showEditModal && (
         <div className="fixed inset-0 z-50 flex items-start justify-center pt-[10vh]">
           <div
-            className="fixed inset-0 bg-black/40"
+            className="fixed inset-0 bg-black/40 animate-fade-in"
             onClick={() => setShowEditModal(false)}
           />
-          <div className="relative z-10 w-full max-w-md rounded-md border border-gray-200 bg-white shadow-lg">
+          <div className="relative z-10 w-full max-w-md rounded-md border border-gray-200 bg-white shadow-lg animate-scale-in">
             <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
               <h2 className="text-xs font-semibold text-gray-900">
                 Edit Team Name

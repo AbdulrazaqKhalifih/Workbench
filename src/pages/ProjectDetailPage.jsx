@@ -279,7 +279,7 @@ export default function ProjectDetailPage() {
       </div>
 
       {/* Kanban Board */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 stagger-children">
         {STATUS_COLUMNS.map((col) => {
           const columnTasks = getTasksByStatus(col.key);
           return (
@@ -333,10 +333,10 @@ export default function ProjectDetailPage() {
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-start justify-center pt-[10vh]">
           <div
-            className="fixed inset-0 bg-black/40"
+            className="fixed inset-0 bg-black/40 animate-fade-in"
             onClick={() => setShowCreateModal(false)}
           />
-          <div className="relative z-10 w-full max-w-md rounded-md border border-gray-200 bg-white shadow-lg">
+          <div className="relative z-10 w-full max-w-md rounded-md border border-gray-200 bg-white shadow-lg animate-scale-in">
             <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
               <h2 className="text-xs font-semibold text-gray-900">
                 Create Task
@@ -454,10 +454,10 @@ export default function ProjectDetailPage() {
       {editTask && (
         <div className="fixed inset-0 z-50 flex items-start justify-center pt-[10vh]">
           <div
-            className="fixed inset-0 bg-black/40"
+            className="fixed inset-0 bg-black/40 animate-fade-in"
             onClick={() => setEditTask(null)}
           />
-          <div className="relative z-10 w-full max-w-md rounded-md border border-gray-200 bg-white shadow-lg">
+          <div className="relative z-10 w-full max-w-md rounded-md border border-gray-200 bg-white shadow-lg animate-scale-in">
             <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
               <h2 className="text-xs font-semibold text-gray-900">Edit Task</h2>
               <button
@@ -570,10 +570,10 @@ export default function ProjectDetailPage() {
       {showEditProjectModal && (
         <div className="fixed inset-0 z-50 flex items-start justify-center pt-[10vh]">
           <div
-            className="fixed inset-0 bg-black/40"
+            className="fixed inset-0 bg-black/40 animate-fade-in"
             onClick={() => setShowEditProjectModal(false)}
           />
-          <div className="relative z-10 w-full max-w-md rounded-md border border-gray-200 bg-white shadow-lg">
+          <div className="relative z-10 w-full max-w-md rounded-md border border-gray-200 bg-white shadow-lg animate-scale-in">
             <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
               <h2 className="text-xs font-semibold text-gray-900">
                 Edit Project

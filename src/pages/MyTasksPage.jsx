@@ -69,7 +69,7 @@ export default function MyTasksPage() {
           </p>
         </div>
       ) : (
-        <div className="rounded-md border border-gray-200 bg-white divide-y divide-gray-100">
+        <div className="rounded-md border border-gray-200 bg-white divide-y divide-gray-100 stagger-children">
           {tasks.map((task) => (
             <Link
               key={task.id}
