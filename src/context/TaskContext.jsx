@@ -91,6 +91,21 @@ export function TaskProvider({ children }) {
     assigneeId,
     dueDate,
   ) => {
+    // Optimistic: add a temp task immediately
+    const tempId = `temp-${Date.now()}`;
+    const optimisticTask = {
+      id: tempId,
+      title,
+      description: description || "",
+      projectId: Number(projectId),
+      assigneeId: assigneeId || null,
+      dueDate: dueDate || null,
+      status: "TODO",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    setTasks((prev) => [...prev, optimisticTask]);
+
     try {
       const response = await fetch(`${API_BASE_URL}/tasks`, {
         method: "POST",
@@ -105,9 +120,13 @@ export function TaskProvider({ children }) {
       });
       if (response.ok) {
         const newTask = await response.json();
-        setTasks((prev) => [...prev, newTask]);
+        setTasks((prev) =>
+          prev.map((t) => (String(t.id) === tempId ? newTask : t)),
+        );
         return newTask;
       }
+      // API failed - remove optimistic task
+      setTasks((prev) => prev.filter((t) => String(t.id) !== tempId));
       try {
         const err = await response.json();
         return { error: err.message || err.error || "Failed to create task" };
@@ -115,11 +134,19 @@ export function TaskProvider({ children }) {
         return { error: "Failed to create task" };
       }
     } catch (error) {
+      setTasks((prev) => prev.filter((t) => String(t.id) !== tempId));
       return { error: error.message || "Failed to create task" };
     }
   };
 
   const updateTask = async (taskId, updates) => {
+    // Optimistic: update immediately
+    setTasks((prev) =>
+      prev.map((t) =>
+        String(t.id) === String(taskId) ? { ...t, ...updates } : t,
+      ),
+    );
+
     try {
       const response = await fetch(`${API_BASE_URL}/tasks/${taskId}`, {
         method: "PUT",
@@ -141,17 +168,27 @@ export function TaskProvider({ children }) {
   };
 
   const deleteTask = async (taskId) => {
+    // Optimistic: remove immediately
+    const deleted = [];
+    setTasks((prev) => {
+      const removed = prev.filter((t) => String(t.id) === String(taskId));
+      deleted.push(...removed);
+      return prev.filter((t) => String(t.id) !== String(taskId));
+    });
+
     try {
       const response = await fetch(`${API_BASE_URL}/tasks/${taskId}`, {
         method: "DELETE",
         headers,
       });
       if (response.ok) {
-        setTasks((prev) => prev.filter((t) => String(t.id) !== String(taskId)));
         return true;
       }
+      // API failed - restore
+      setTasks((prev) => [...prev, ...deleted]);
       return false;
     } catch (error) {
+      setTasks((prev) => [...prev, ...deleted]);
       console.error("Failed to delete task:", error);
       return false;
     }

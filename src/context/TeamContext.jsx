@@ -151,23 +151,37 @@ export function TeamProvider({ children }) {
   };
 
   const deleteTeam = async (teamId) => {
+    // Optimistic: remove immediately
+    const deleted = [];
+    setTeams((prev) => {
+      const removed = prev.filter((t) => String(t.id) === String(teamId));
+      deleted.push(...removed);
+      return prev.filter((t) => String(t.id) !== String(teamId));
+    });
+
     try {
       const response = await fetch(`${API_BASE_URL}/teams/${teamId}`, {
         method: "DELETE",
         headers,
       });
-      if (response.ok) {
-        setTeams((prev) => prev.filter((t) => String(t.id) !== String(teamId)));
-        return true;
-      }
+      if (response.ok) return true;
+      setTeams((prev) => [...prev, ...deleted]);
       return false;
     } catch (error) {
+      setTeams((prev) => [...prev, ...deleted]);
       console.error("Failed to delete team:", error);
       return false;
     }
   };
 
   const updateTeam = async (teamId, updates) => {
+    // Optimistic: update immediately
+    setTeams((prev) =>
+      prev.map((t) =>
+        String(t.id) === String(teamId) ? { ...t, ...updates } : t,
+      ),
+    );
+
     try {
       const response = await fetch(`${API_BASE_URL}/teams/${teamId}`, {
         method: "PUT",
@@ -191,6 +205,23 @@ export function TeamProvider({ children }) {
   };
 
   const removeMember = async (teamId, userId) => {
+    // Optimistic: remove member immediately
+    const prevMembers = [];
+    setTeams((prev) =>
+      prev.map((team) => {
+        if (String(team.id) === String(teamId)) {
+          prevMembers.push(...(team.members || []));
+          return {
+            ...team,
+            members: (team.members || []).filter(
+              (m) => String(m.userId) !== String(userId),
+            ),
+          };
+        }
+        return team;
+      }),
+    );
+
     try {
       const response = await fetch(
         `${API_BASE_URL}/teams/${teamId}/members/${userId}`,
@@ -207,8 +238,23 @@ export function TeamProvider({ children }) {
         );
         return true;
       }
+      // Restore
+      setTeams((prev) =>
+        prev.map((team) =>
+          String(team.id) === String(teamId)
+            ? { ...team, members: prevMembers }
+            : team,
+        ),
+      );
       return false;
     } catch (error) {
+      setTeams((prev) =>
+        prev.map((team) =>
+          String(team.id) === String(teamId)
+            ? { ...team, members: prevMembers }
+            : team,
+        ),
+      );
       console.error("Failed to remove member:", error);
       return false;
     }

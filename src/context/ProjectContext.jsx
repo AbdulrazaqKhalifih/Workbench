@@ -47,6 +47,16 @@ export function ProjectProvider({ children }) {
   };
 
   const createProject = async (name, description, teamId) => {
+    // Optimistic: add immediately
+    const tempId = `temp-${Date.now()}`;
+    const optimistic = {
+      id: tempId,
+      name,
+      description: description || "",
+      teamId: Number(teamId),
+    };
+    setProjects((prev) => [...prev, optimistic]);
+
     try {
       const response = await fetch(`${API_BASE_URL}/projects`, {
         method: "POST",
@@ -55,34 +65,50 @@ export function ProjectProvider({ children }) {
       });
       if (response.ok) {
         const newProject = await response.json();
-        setProjects((prev) => [...prev, newProject]);
+        setProjects((prev) =>
+          prev.map((p) => (String(p.id) === tempId ? newProject : p)),
+        );
         return newProject;
       }
+      setProjects((prev) => prev.filter((p) => String(p.id) !== tempId));
     } catch (error) {
+      setProjects((prev) => prev.filter((p) => String(p.id) !== tempId));
       console.error("Failed to create project:", error);
     }
   };
 
   const deleteProject = async (projectId) => {
+    // Optimistic: remove immediately
+    const deleted = [];
+    setProjects((prev) => {
+      const removed = prev.filter((p) => String(p.id) === String(projectId));
+      deleted.push(...removed);
+      return prev.filter((p) => String(p.id) !== String(projectId));
+    });
+
     try {
       const response = await fetch(`${API_BASE_URL}/projects/${projectId}`, {
         method: "DELETE",
         headers,
       });
-      if (response.ok) {
-        setProjects((prev) =>
-          prev.filter((p) => String(p.id) !== String(projectId)),
-        );
-        return true;
-      }
+      if (response.ok) return true;
+      setProjects((prev) => [...prev, ...deleted]);
       return false;
     } catch (error) {
+      setProjects((prev) => [...prev, ...deleted]);
       console.error("Failed to delete project:", error);
       return false;
     }
   };
 
   const updateProject = async (projectId, updates) => {
+    // Optimistic: update immediately
+    setProjects((prev) =>
+      prev.map((p) =>
+        String(p.id) === String(projectId) ? { ...p, ...updates } : p,
+      ),
+    );
+
     try {
       const response = await fetch(`${API_BASE_URL}/projects/${projectId}`, {
         method: "PUT",

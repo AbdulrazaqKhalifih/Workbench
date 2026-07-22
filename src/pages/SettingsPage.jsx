@@ -1,16 +1,19 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { User, Save } from "lucide-react";
+import { User, Save, Loader2 } from "lucide-react";
 
 export default function SettingsPage() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [name, setName] = useState(user?.username || "");
+  const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    // Profile update via API is handled by the backend MeController
-    // For now, just show a confirmation
+    if (!name.trim()) return;
+    setSaving(true);
+    await updateUser({ username: name });
+    setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };

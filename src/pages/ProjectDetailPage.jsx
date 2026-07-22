@@ -119,9 +119,12 @@ export default function ProjectDetailPage() {
   const handleEditTask = async (e) => {
     e.preventDefault();
     if (!editTask.title.trim()) return;
-    const updates = { title: editTask.title };
-    if (editTask.description !== undefined)
-      updates.description = editTask.description;
+    const updates = {
+      title: editTask.title,
+      description: editTask.description || "",
+      assigneeId: editTask.assigneeId || null,
+      dueDate: editTask.dueDate || null,
+    };
     await updateTask(editTask.id, updates);
     setEditTask(null);
   };
@@ -452,7 +455,7 @@ export default function ProjectDetailPage() {
             <form onSubmit={handleEditTask} className="p-4 space-y-3">
               <div>
                 <label className="block text-[11px] font-medium text-gray-600 mb-1">
-                  Title
+                  Title *
                 </label>
                 <input
                   type="text"
@@ -476,6 +479,44 @@ export default function ProjectDetailPage() {
                   }
                   className="block w-full rounded-md border border-gray-300 px-2.5 py-1.5 text-xs text-gray-900 focus:border-amber-400 focus:ring-1 focus:ring-amber-200 focus:outline-none"
                 />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-medium text-gray-600 mb-1">
+                    Assignee
+                  </label>
+                  <select
+                    value={editTask.assigneeId || ""}
+                    onChange={(e) =>
+                      setEditTask({ ...editTask, assigneeId: e.target.value })
+                    }
+                    className="block w-full rounded-md border border-gray-300 px-2.5 py-1.5 text-xs text-gray-900 focus:border-amber-400 focus:ring-1 focus:ring-amber-200 focus:outline-none"
+                  >
+                    <option value="">Unassigned</option>
+                    {teamMembers.map((m) => (
+                      <option key={m.userId} value={m.userId}>
+                        {m.userName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[11px] font-medium text-gray-600 mb-1">
+                    Due Date
+                  </label>
+                  <input
+                    type="date"
+                    value={
+                      editTask.dueDate
+                        ? new Date(editTask.dueDate).toISOString().split("T")[0]
+                        : ""
+                    }
+                    onChange={(e) =>
+                      setEditTask({ ...editTask, dueDate: e.target.value })
+                    }
+                    className="block w-full rounded-md border border-gray-300 px-2.5 py-1.5 text-xs text-gray-900 focus:border-amber-400 focus:ring-1 focus:ring-amber-200 focus:outline-none"
+                  />
+                </div>
               </div>
               <div className="flex justify-end gap-1.5 pt-1">
                 <button

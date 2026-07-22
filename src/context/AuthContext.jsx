@@ -111,6 +111,29 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const updateUser = async (updates) => {
+    // Update local state immediately
+    const updatedUser = { ...user, ...updates };
+    setUser(updatedUser);
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+
+    // Sync with backend
+    try {
+      await fetch(`${API_BASE_URL}/me`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+        body: JSON.stringify(updates),
+      });
+    } catch (error) {
+      console.error("Failed to sync profile update:", error);
+    }
+
+    return updatedUser;
+  };
+
   const logout = () => {
     setUser(null);
     setToken(null);
@@ -120,7 +143,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, token, login, register, logout, loading }}
+      value={{ user, token, login, register, logout, updateUser, loading }}
     >
       {children}
     </AuthContext.Provider>
