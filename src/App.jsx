@@ -12,6 +12,8 @@ import ProjectsPage from "./pages/ProjectsPage";
 import CreateProjectPage from "./pages/CreateProjectPage";
 import ProjectDetailPage from "./pages/ProjectDetailPage";
 import TaskDetailPage from "./pages/TaskDetailPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import MyTasksPage from "./pages/MyTasksPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import SettingsPage from "./pages/SettingsPage";
@@ -29,6 +31,18 @@ function App() {
       <Route
         path="/register"
         element={user ? <Navigate to="/dashboard" replace /> : <RegisterPage />}
+      />
+      <Route
+        path="/forgot-password"
+        element={
+          user ? <Navigate to="/dashboard" replace /> : <ForgotPasswordPage />
+        }
+      />
+      <Route
+        path="/reset-password"
+        element={
+          user ? <Navigate to="/dashboard" replace /> : <ResetPasswordPage />
+        }
       />
 
       {/* Protected routes with sidebar layout */}
