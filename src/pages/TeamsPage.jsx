@@ -2,10 +2,11 @@ import { Link } from "react-router-dom";
 import { Users, Plus } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useTeams } from "../context/TeamContext";
+import RefreshButton from "../components/RefreshButton";
 
 export default function TeamsPage() {
   const { user } = useAuth();
-  const { teams } = useTeams();
+  const { teams, fetchTeams } = useTeams();
 
   const userTeams = teams.filter((t) =>
     t.members?.some((m) => String(m.userId) === String(user.id)),
@@ -14,8 +15,9 @@ export default function TeamsPage() {
   return (
     <div className="px-6 py-8 max-w-6xl mx-auto">
       <div className="mb-6 flex items-center justify-between">
-        <div>
+        <div className="flex items-center gap-2">
           <h1 className="text-base font-semibold text-gray-900">Teams</h1>
+          <RefreshButton onClick={fetchTeams} />
           <p className="mt-0.5 text-xs text-gray-500">
             Manage your teams and members.
           </p>

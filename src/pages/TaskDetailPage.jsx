@@ -9,11 +9,14 @@ import {
   Send,
   Clock,
   Loader2,
+  Edit2,
+  X,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useTasks } from "../context/TaskContext";
 import { useProjects } from "../context/ProjectContext";
 import { useTeams } from "../context/TeamContext";
+import RefreshButton from "../components/RefreshButton";
 
 const STATUS_OPTIONS = [
   { key: "TODO", label: "To Do" },
@@ -48,6 +51,33 @@ export default function TaskDetailPage() {
   const [statusUpdating, setStatusUpdating] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [commentsLoadedFor, setCommentsLoadedFor] = useState(null);
+  const [editing, setEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editAssigneeId, setEditAssigneeId] = useState("");
+  const [editDueDate, setEditDueDate] = useState("");
+
+  const openEdit = () => {
+    setEditTitle(task?.title || "");
+    setEditDescription(task?.description || "");
+    setEditAssigneeId(task?.assigneeId || "");
+    setEditDueDate(
+      task?.dueDate ? new Date(task.dueDate).toISOString().split("T")[0] : "",
+    );
+    setEditing(true);
+  };
+
+  const handleEditSave = async (e) => {
+    e.preventDefault();
+    if (!editTitle.trim()) return;
+    await updateTask(taskId, {
+      title: editTitle,
+      description: editDescription,
+      assigneeId: editAssigneeId || null,
+      dueDate: editDueDate || null,
+    });
+    setEditing(false);
+  };
 
   // Find task from context
   const task = tasks.find((t) => String(t.id) === String(taskId));
@@ -148,93 +178,188 @@ export default function TaskDetailPage() {
           <ArrowLeft className="h-3 w-3" />
           Back
         </button>
-        <button
-          onClick={handleDelete}
-          disabled={deleting}
-          className="inline-flex items-center gap-1 text-[11px] text-red-500 hover:text-red-600 disabled:opacity-40 cursor-pointer"
-        >
-          <Trash2 className="h-3 w-3" />
-          {deleting ? "Deleting..." : "Delete"}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={openEdit}
+            className="inline-flex items-center gap-1 text-[11px] text-gray-500 hover:text-amber-600 cursor-pointer"
+          >
+            <Edit2 className="h-3 w-3" />
+            Edit
+          </button>
+          <button
+            onClick={handleDelete}
+            disabled={deleting}
+            className="inline-flex items-center gap-1 text-[11px] text-red-500 hover:text-red-600 disabled:opacity-40 cursor-pointer"
+          >
+            <Trash2 className="h-3 w-3" />
+            {deleting ? "Deleting..." : "Delete"}
+          </button>
+        </div>
       </div>
 
       {/* Task Header */}
       <div className="rounded-md border border-gray-200 bg-white p-5 mb-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1">
-            <h1 className="text-sm font-semibold text-gray-900">
-              {task.title}
-            </h1>
-            {task.description && (
-              <p className="mt-2 text-xs text-gray-600 leading-relaxed whitespace-pre-wrap">
-                {task.description}
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Meta info */}
-        <div className="mt-4 flex flex-wrap items-center gap-4">
-          {/* Status */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-gray-500 uppercase tracking-wider font-medium">
-              Status
-            </span>
-            <select
-              value={task.status}
-              onChange={(e) => handleStatusChange(e.target.value)}
-              disabled={statusUpdating}
-              className={`rounded px-2 py-0.5 text-[11px] font-medium border-0 cursor-pointer focus:ring-1 focus:ring-amber-200 ${STATUS_BADGE[task.status] || "bg-gray-100 text-gray-600"}`}
-            >
-              {STATUS_OPTIONS.map((opt) => (
-                <option key={opt.key} value={opt.key}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Assignee */}
-          <div className="flex items-center gap-1.5">
-            <User className="h-3 w-3 text-gray-400" />
-            <span className="text-[11px] text-gray-600">
-              {assigneeName || "Unassigned"}
-            </span>
-          </div>
-
-          {/* Due Date */}
-          {task.dueDate && (
-            <div className="flex items-center gap-1.5">
-              <Calendar className="h-3 w-3 text-gray-400" />
-              <span className="text-[11px] text-gray-600">
-                {formatDate(task.dueDate)}
-              </span>
+        {editing ? (
+          <form onSubmit={handleEditSave} className="space-y-3">
+            <div>
+              <label className="block text-[11px] font-medium text-gray-600 mb-1">
+                Title *
+              </label>
+              <input
+                type="text"
+                required
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                className="block w-full rounded-md border border-gray-300 px-2.5 py-1.5 text-xs text-gray-900 focus:border-amber-400 focus:ring-1 focus:ring-amber-200 focus:outline-none"
+              />
             </div>
-          )}
+            <div>
+              <label className="block text-[11px] font-medium text-gray-600 mb-1">
+                Description
+              </label>
+              <textarea
+                rows={2}
+                value={editDescription}
+                onChange={(e) => setEditDescription(e.target.value)}
+                className="block w-full rounded-md border border-gray-300 px-2.5 py-1.5 text-xs text-gray-900 focus:border-amber-400 focus:ring-1 focus:ring-amber-200 focus:outline-none"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[11px] font-medium text-gray-600 mb-1">
+                  Assignee
+                </label>
+                {isAdmin ? (
+                  <select
+                    value={editAssigneeId}
+                    onChange={(e) => setEditAssigneeId(e.target.value)}
+                    className="block w-full rounded-md border border-gray-300 px-2.5 py-1.5 text-xs text-gray-900 focus:border-amber-400 focus:ring-1 focus:ring-amber-200 focus:outline-none"
+                  >
+                    <option value="">Unassigned</option>
+                    {teamMembers.map((m) => (
+                      <option key={m.userId} value={m.userId}>
+                        {m.userName}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <select
+                    value={editAssigneeId}
+                    onChange={(e) => setEditAssigneeId(e.target.value)}
+                    className="block w-full rounded-md border border-gray-300 px-2.5 py-1.5 text-xs text-gray-900 focus:border-amber-400 focus:ring-1 focus:ring-amber-200 focus:outline-none"
+                  >
+                    <option value="">Unassigned</option>
+                    <option value={user.id}>{user.username} (me)</option>
+                  </select>
+                )}
+              </div>
+              <div>
+                <label className="block text-[11px] font-medium text-gray-600 mb-1">
+                  Due Date
+                </label>
+                <input
+                  type="date"
+                  value={editDueDate}
+                  onChange={(e) => setEditDueDate(e.target.value)}
+                  className="block w-full rounded-md border border-gray-300 px-2.5 py-1.5 text-xs text-gray-900 focus:border-amber-400 focus:ring-1 focus:ring-amber-200 focus:outline-none"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-1.5 pt-1">
+              <button
+                type="button"
+                onClick={() => setEditing(false)}
+                className="rounded-md border border-gray-300 px-3 py-1.5 text-[11px] font-medium text-gray-600 hover:bg-gray-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="rounded-md bg-amber-400 px-3 py-1.5 text-[11px] font-medium text-white hover:bg-amber-500 cursor-pointer"
+              >
+                Save
+              </button>
+            </div>
+          </form>
+        ) : (
+          <>
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <h1 className="text-sm font-semibold text-gray-900">
+                  {task.title}
+                </h1>
+                {task.description && (
+                  <p className="mt-2 text-xs text-gray-600 leading-relaxed whitespace-pre-wrap">
+                    {task.description}
+                  </p>
+                )}
+              </div>
+            </div>
 
-          {/* Created */}
-          <div className="flex items-center gap-1.5">
-            <Clock className="h-3 w-3 text-gray-400" />
-            <span className="text-[11px] text-gray-500">
-              Created {formatDateTime(task.createdAt)}
-            </span>
-          </div>
-        </div>
+            {/* Meta info */}
+            <div className="mt-4 flex flex-wrap items-center gap-4">
+              {/* Status */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] text-gray-500 uppercase tracking-wider font-medium">
+                  Status
+                </span>
+                <select
+                  value={task.status}
+                  onChange={(e) => handleStatusChange(e.target.value)}
+                  disabled={statusUpdating}
+                  className={`rounded px-2 py-0.5 text-[11px] font-medium border-0 cursor-pointer focus:ring-1 focus:ring-amber-200 ${STATUS_BADGE[task.status] || "bg-gray-100 text-gray-600"}`}
+                >
+                  {STATUS_OPTIONS.map((opt) => (
+                    <option key={opt.key} value={opt.key}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-        {/* Project/team context */}
-        <div className="mt-3 flex items-center gap-2">
-          {project && (
-            <Link
-              to={`/projects/${project.id}`}
-              className="rounded bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-600 hover:bg-gray-200"
-            >
-              {project.name}
-            </Link>
-          )}
-          {team && (
-            <span className="text-[10px] text-gray-400">{team.name}</span>
-          )}
-        </div>
+              {/* Assignee */}
+              <div className="flex items-center gap-1.5">
+                <User className="h-3 w-3 text-gray-400" />
+                <span className="text-[11px] text-gray-600">
+                  {assigneeName || "Unassigned"}
+                </span>
+              </div>
+
+              {/* Due Date */}
+              {task.dueDate && (
+                <div className="flex items-center gap-1.5">
+                  <Calendar className="h-3 w-3 text-gray-400" />
+                  <span className="text-[11px] text-gray-600">
+                    {formatDate(task.dueDate)}
+                  </span>
+                </div>
+              )}
+
+              {/* Created */}
+              <div className="flex items-center gap-1.5">
+                <Clock className="h-3 w-3 text-gray-400" />
+                <span className="text-[11px] text-gray-500">
+                  Created {formatDateTime(task.createdAt)}
+                </span>
+              </div>
+            </div>
+
+            {/* Project/team context */}
+            <div className="mt-3 flex items-center gap-2">
+              {project && (
+                <Link
+                  to={`/projects/${project.id}`}
+                  className="rounded bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-600 hover:bg-gray-200"
+                >
+                  {project.name}
+                </Link>
+              )}
+              {team && (
+                <span className="text-[10px] text-gray-400">{team.name}</span>
+              )}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Comments Section */}
@@ -242,7 +367,11 @@ export default function TaskDetailPage() {
         <div className="px-5 py-3 border-b border-gray-100">
           <h2 className="flex items-center gap-1.5 text-xs font-semibold text-gray-900">
             <MessageSquare className="h-3.5 w-3.5 text-amber-500" />
-            Comments{" "}
+            Comments
+            <RefreshButton
+              onClick={() => fetchComments(taskId)}
+              size="xs"
+            />{" "}
             {commentsLoadedFor === taskId ? `(${comments.length})` : ""}
           </h2>
         </div>

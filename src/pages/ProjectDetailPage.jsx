@@ -16,6 +16,7 @@ import { useAuth } from "../context/AuthContext";
 import { useProjects } from "../context/ProjectContext";
 import { useTeams } from "../context/TeamContext";
 import { useTasks } from "../context/TaskContext";
+import RefreshButton from "../components/RefreshButton";
 
 const STATUS_COLUMNS = [
   { key: "TODO", label: "To Do", color: "bg-gray-100 text-gray-700" },
@@ -265,6 +266,7 @@ export default function ProjectDetailPage() {
                 )}
               </button>
             )}
+            <RefreshButton onClick={() => fetchTasksByProject(projectId)} />
             <button
               onClick={() => setShowCreateModal(true)}
               className="inline-flex items-center gap-1 rounded-md bg-amber-400 px-2.5 py-1.5 text-[11px] font-medium text-white transition-colors hover:bg-amber-500 cursor-pointer"

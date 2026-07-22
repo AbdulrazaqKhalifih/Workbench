@@ -3,11 +3,12 @@ import { FolderKanban, Plus } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useTeams } from "../context/TeamContext";
 import { useProjects } from "../context/ProjectContext";
+import RefreshButton from "../components/RefreshButton";
 
 export default function ProjectsPage() {
   const { user } = useAuth();
   const { teams } = useTeams();
-  const { projects } = useProjects();
+  const { projects, fetchProjects } = useProjects();
 
   const userTeamIds = teams
     .filter((t) => t.members?.some((m) => String(m.userId) === String(user.id)))
@@ -23,8 +24,9 @@ export default function ProjectsPage() {
   return (
     <div className="px-6 py-8 max-w-6xl mx-auto">
       <div className="mb-6 flex items-center justify-between">
-        <div>
+        <div className="flex items-center gap-2">
           <h1 className="text-base font-semibold text-gray-900">Projects</h1>
+          <RefreshButton onClick={fetchProjects} />
           <p className="mt-0.5 text-xs text-gray-500">
             View all projects across your teams.
           </p>

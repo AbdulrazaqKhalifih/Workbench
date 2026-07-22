@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ListTodo, Calendar, User, FolderKanban, Loader2 } from "lucide-react";
+import RefreshButton from "../components/RefreshButton";
 import { useAuth } from "../context/AuthContext";
 import { useTasks } from "../context/TaskContext";
 import { useProjects } from "../context/ProjectContext";
@@ -42,7 +43,10 @@ export default function MyTasksPage() {
   return (
     <div className="px-6 py-8 max-w-4xl mx-auto">
       <div className="mb-5">
-        <h1 className="text-base font-semibold text-gray-900">My Tasks</h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-base font-semibold text-gray-900">My Tasks</h1>
+          <RefreshButton onClick={() => fetchTasksByAssignee(user.id)} />
+        </div>
         <p className="mt-0.5 text-xs text-gray-500">
           Tasks assigned to you across all projects.
         </p>
