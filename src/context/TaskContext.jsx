@@ -4,6 +4,7 @@ import {
   useState,
   useCallback,
   useMemo,
+  useRef,
 } from "react";
 import { useAuth } from "./AuthContext";
 
@@ -14,6 +15,9 @@ const API_BASE_URL =
 export function TaskProvider({ children }) {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [comments, setComments] = useState([]);
+  const tasksCache = useRef({});
+  const commentsCache = useRef({});
   const { token } = useAuth();
 
   const headers = useMemo(
@@ -24,8 +28,25 @@ export function TaskProvider({ children }) {
     [token],
   );
 
+  const cacheAndSet = (cacheKey, data) => {
+    tasksCache.current[cacheKey] = data;
+    setTasks(data);
+  };
+
   const fetchTasksByProject = useCallback(
     async (projectId) => {
+      const cacheKey = `project:${projectId}`;
+      if (tasksCache.current[cacheKey]) {
+        setTasks(tasksCache.current[cacheKey]);
+        fetch(`${API_BASE_URL}/tasks/project/${projectId}`, { headers })
+          .then((r) => r.ok && r.json())
+          .then((data) => {
+            if (data) cacheAndSet(cacheKey, data);
+          })
+          .catch(() => {});
+        return tasksCache.current[cacheKey];
+      }
+
       try {
         setLoading(true);
         const response = await fetch(
@@ -40,7 +61,7 @@ export function TaskProvider({ children }) {
         }
         if (response.ok) {
           const data = await response.json();
-          setTasks(data);
+          cacheAndSet(cacheKey, data);
           return data;
         }
         return [];
@@ -56,6 +77,18 @@ export function TaskProvider({ children }) {
 
   const fetchTasksByAssignee = useCallback(
     async (assigneeId) => {
+      const cacheKey = `assignee:${assigneeId}`;
+      if (tasksCache.current[cacheKey]) {
+        setTasks(tasksCache.current[cacheKey]);
+        fetch(`${API_BASE_URL}/tasks/assignee/${assigneeId}`, { headers })
+          .then((r) => r.ok && r.json())
+          .then((data) => {
+            if (data) cacheAndSet(cacheKey, data);
+          })
+          .catch(() => {});
+        return tasksCache.current[cacheKey];
+      }
+
       try {
         setLoading(true);
         const response = await fetch(
@@ -70,7 +103,7 @@ export function TaskProvider({ children }) {
         }
         if (response.ok) {
           const data = await response.json();
-          setTasks(data);
+          cacheAndSet(cacheKey, data);
           return data;
         }
         return [];
@@ -195,10 +228,23 @@ export function TaskProvider({ children }) {
   };
 
   // --- Comments ---
-  const [comments, setComments] = useState([]);
-
   const fetchComments = useCallback(
     async (taskId) => {
+      const cacheKey = String(taskId);
+      if (commentsCache.current[cacheKey]) {
+        setComments(commentsCache.current[cacheKey]);
+        fetch(`${API_BASE_URL}/comments/task/${taskId}`, { headers })
+          .then((r) => r.ok && r.json())
+          .then((data) => {
+            if (data) {
+              commentsCache.current[cacheKey] = data;
+              setComments(data);
+            }
+          })
+          .catch(() => {});
+        return commentsCache.current[cacheKey];
+      }
+
       try {
         const response = await fetch(
           `${API_BASE_URL}/comments/task/${taskId}`,
@@ -212,6 +258,7 @@ export function TaskProvider({ children }) {
         }
         if (response.ok) {
           const data = await response.json();
+          commentsCache.current[cacheKey] = data;
           setComments(data);
           return data;
         }
@@ -234,6 +281,13 @@ export function TaskProvider({ children }) {
       if (response.ok) {
         const newComment = await response.json();
         setComments((prev) => [...prev, newComment]);
+        const cacheKey = String(taskId);
+        if (commentsCache.current[cacheKey]) {
+          commentsCache.current[cacheKey] = [
+            ...commentsCache.current[cacheKey],
+            newComment,
+          ];
+        }
         return newComment;
       }
       const err = await response.json();
@@ -243,7 +297,7 @@ export function TaskProvider({ children }) {
     }
   };
 
-  const deleteComment = async (commentId) => {
+  const deleteComment = async (commentId, taskId) => {
     try {
       const response = await fetch(`${API_BASE_URL}/comments/${commentId}`, {
         method: "DELETE",
@@ -253,6 +307,14 @@ export function TaskProvider({ children }) {
         setComments((prev) =>
           prev.filter((c) => String(c.id) !== String(commentId)),
         );
+        if (taskId) {
+          const cacheKey = String(taskId);
+          if (commentsCache.current[cacheKey]) {
+            commentsCache.current[cacheKey] = commentsCache.current[
+              cacheKey
+            ].filter((c) => String(c.id) !== String(commentId));
+          }
+        }
         return true;
       }
       return false;

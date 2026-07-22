@@ -23,13 +23,13 @@ export default function CreateTeamPage() {
 
   return (
     <div className="px-6 py-8 max-w-lg mx-auto">
-      <Link
-        to="/teams"
-        className="inline-flex items-center gap-1 text-[11px] text-gray-500 hover:text-gray-700 mb-4"
+      <button
+        onClick={() => navigate(-1)}
+        className="inline-flex items-center gap-1 text-[11px] text-gray-500 hover:text-gray-700 mb-4 cursor-pointer"
       >
         <ArrowLeft className="h-3 w-3" />
-        Back to Teams
-      </Link>
+        Back
+      </button>
 
       <h1 className="text-base font-semibold text-gray-900 mb-4">
         Create New Team

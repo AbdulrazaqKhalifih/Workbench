@@ -191,13 +191,13 @@ export default function ProjectDetailPage() {
     <div className="px-6 py-8 max-w-6xl mx-auto">
       {/* Header */}
       <div className="mb-4 flex items-center justify-between">
-        <Link
-          to="/projects"
-          className="inline-flex items-center gap-1 text-[11px] text-gray-500 hover:text-gray-700"
+        <button
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center gap-1 text-[11px] text-gray-500 hover:text-gray-700 cursor-pointer"
         >
           <ArrowLeft className="h-3 w-3" />
-          Back to Projects
-        </Link>
+          Back
+        </button>
         {team && (
           <Link
             to={`/teams/${team.id}`}

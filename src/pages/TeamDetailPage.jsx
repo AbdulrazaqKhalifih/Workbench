@@ -162,13 +162,13 @@ export default function TeamDetailPage() {
   return (
     <div className="px-6 py-8 max-w-5xl mx-auto">
       <div className="mb-4">
-        <Link
-          to="/teams"
-          className="inline-flex items-center gap-1 text-[11px] text-gray-500 hover:text-gray-700"
+        <button
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center gap-1 text-[11px] text-gray-500 hover:text-gray-700 cursor-pointer"
         >
           <ArrowLeft className="h-3 w-3" />
-          Back to Teams
-        </Link>
+          Back
+        </button>
       </div>
 
       <div className="mb-5 flex items-start justify-between gap-4">

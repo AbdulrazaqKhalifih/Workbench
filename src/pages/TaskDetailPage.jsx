@@ -141,13 +141,13 @@ export default function TaskDetailPage() {
     <div className="px-6 py-8 max-w-3xl mx-auto">
       {/* Navigation */}
       <div className="mb-4 flex items-center justify-between">
-        <Link
-          to={`/projects/${task.projectId}`}
-          className="inline-flex items-center gap-1 text-[11px] text-gray-500 hover:text-gray-700"
+        <button
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center gap-1 text-[11px] text-gray-500 hover:text-gray-700 cursor-pointer"
         >
           <ArrowLeft className="h-3 w-3" />
-          Back to Project
-        </Link>
+          Back
+        </button>
         <button
           onClick={handleDelete}
           disabled={deleting}
@@ -277,7 +277,7 @@ export default function TaskDetailPage() {
                   </p>
                   {String(comment.userId) === String(user.id) && (
                     <button
-                      onClick={() => deleteComment(comment.id)}
+                      onClick={() => deleteComment(comment.id, taskId)}
                       className="mt-0.5 text-[9px] text-gray-400 hover:text-red-500 cursor-pointer"
                     >
                       Delete
