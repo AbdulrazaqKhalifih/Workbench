@@ -71,9 +71,7 @@ export default function ProjectsPage() {
               <h3 className="text-xs font-semibold text-gray-900">
                 {project.name}
               </h3>
-              <p className="mt-1 text-[11px] text-gray-500 line-clamp-2">
-                {project.description || "No description"}
-              </p>
+
               <div className="mt-2.5 flex items-center justify-between">
                 <span className="rounded bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-600">
                   {getTeamName(project.teamId)}

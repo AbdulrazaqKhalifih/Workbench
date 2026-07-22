@@ -133,7 +133,9 @@ export default function TaskDetailPage() {
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
-    const d = new Date(dateStr);
+    const d = new Date(
+      dateStr.endsWith("Z") || dateStr.includes("+") ? dateStr : dateStr + "Z",
+    );
     return d.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
@@ -143,7 +145,9 @@ export default function TaskDetailPage() {
 
   const formatDateTime = (dateStr) => {
     if (!dateStr) return "";
-    const d = new Date(dateStr);
+    const d = new Date(
+      dateStr.endsWith("Z") || dateStr.includes("+") ? dateStr : dateStr + "Z",
+    );
     return d.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",

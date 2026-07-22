@@ -44,7 +44,10 @@ export default function DashboardPage() {
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
-    return new Date(dateStr).toLocaleDateString("en-US", {
+    const d = new Date(
+      dateStr.endsWith("Z") || dateStr.includes("+") ? dateStr : dateStr + "Z",
+    );
+    return d.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
     });
@@ -138,13 +141,6 @@ export default function DashboardPage() {
                     <div>
                       <p className="text-xs font-medium text-gray-900">
                         {project.name}
-                      </p>
-                      <p className="text-[10px] text-gray-400">
-                        {project.description
-                          ? project.description.length > 50
-                            ? project.description.slice(0, 50) + "..."
-                            : project.description
-                          : "No description"}
                       </p>
                     </div>
                   </div>

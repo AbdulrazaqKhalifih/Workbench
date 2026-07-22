@@ -34,7 +34,10 @@ export default function MyTasksPage() {
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
-    return new Date(dateStr).toLocaleDateString("en-US", {
+    const d = new Date(
+      dateStr.endsWith("Z") || dateStr.includes("+") ? dateStr : dateStr + "Z",
+    );
+    return d.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
     });

@@ -6,14 +6,13 @@ import { useTeams } from "../context/TeamContext";
 
 export default function CreateTeamPage() {
   const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
   const { user } = useAuth();
   const { createTeam } = useTeams();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const team = await createTeam(name, description, user.id);
+    const team = await createTeam(name, user.id);
     if (team?.id) {
       navigate(`/teams/${team.id}`);
     } else {
@@ -54,23 +53,6 @@ export default function CreateTeamPage() {
             onChange={(e) => setName(e.target.value)}
             className="block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 placeholder-gray-400 transition-colors focus:border-amber-400 focus:ring-1 focus:ring-amber-200 focus:outline-none"
             placeholder="e.g., Development Team"
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor="description"
-            className="block text-xs font-medium text-gray-600 mb-1"
-          >
-            Description
-          </label>
-          <textarea
-            id="description"
-            rows={3}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 placeholder-gray-400 transition-colors focus:border-amber-400 focus:ring-1 focus:ring-amber-200 focus:outline-none"
-            placeholder="What is this team working on?"
           />
         </div>
 

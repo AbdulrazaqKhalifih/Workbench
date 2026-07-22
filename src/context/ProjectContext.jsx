@@ -46,7 +46,7 @@ export function ProjectProvider({ children }) {
     }
   };
 
-  const createProject = async (name, description, teamId) => {
+  const createProject = async (name, teamId) => {
     // Optimistic: add immediately
     const tempId = `temp-${Date.now()}`;
     const optimistic = {

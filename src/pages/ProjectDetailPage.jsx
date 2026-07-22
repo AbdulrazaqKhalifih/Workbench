@@ -65,7 +65,6 @@ export default function ProjectDetailPage() {
   const [createError, setCreateError] = useState("");
   const [showEditProjectModal, setShowEditProjectModal] = useState(false);
   const [editProjectName, setEditProjectName] = useState("");
-  const [editProjectDesc, setEditProjectDesc] = useState("");
   const [deletingProject, setDeletingProject] = useState(false);
 
   useEffect(() => {
@@ -150,7 +149,6 @@ export default function ProjectDetailPage() {
     if (!editProjectName.trim()) return;
     await updateProject(projectId, {
       name: editProjectName,
-      description: editProjectDesc,
     });
     setShowEditProjectModal(false);
   };
@@ -182,7 +180,10 @@ export default function ProjectDetailPage() {
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
-    return new Date(dateStr).toLocaleDateString("en-US", {
+    const d = new Date(
+      dateStr.endsWith("Z") || dateStr.includes("+") ? dateStr : dateStr + "Z",
+    );
+    return d.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
     });
@@ -225,7 +226,6 @@ export default function ProjectDetailPage() {
                   <button
                     onClick={() => {
                       setEditProjectName(project.name);
-                      setEditProjectDesc(project.description || "");
                       setShowEditProjectModal(true);
                     }}
                     className="rounded p-0.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors flex-shrink-0 cursor-pointer"
@@ -235,9 +235,7 @@ export default function ProjectDetailPage() {
                   </button>
                 )}
               </div>
-              <p className="mt-0.5 text-[11px] text-gray-500">
-                {project.description || "Project workspace"}
-              </p>
+
               <div className="mt-2 flex items-center gap-3">
                 <span className="text-[10px] text-gray-400">
                   {tasks.length} task{tasks.length !== 1 ? "s" : ""}
@@ -599,18 +597,6 @@ export default function ProjectDetailPage() {
                   placeholder="Enter project name"
                 />
               </div>
-              <div>
-                <label className="block text-[11px] font-medium text-gray-600 mb-1">
-                  Description
-                </label>
-                <textarea
-                  rows={2}
-                  value={editProjectDesc}
-                  onChange={(e) => setEditProjectDesc(e.target.value)}
-                  className="block w-full rounded-md border border-gray-300 px-2.5 py-1.5 text-xs text-gray-900 focus:border-amber-400 focus:ring-1 focus:ring-amber-200 focus:outline-none"
-                  placeholder="Enter description"
-                />
-              </div>
               <div className="flex justify-end gap-1.5 pt-1">
                 <button
                   type="button"
@@ -644,7 +630,9 @@ function TaskCard({ task, teamMembers, onStatusChange, onDelete, onEdit }) {
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
-    const d = new Date(dateStr);
+    const d = new Date(
+      dateStr.endsWith("Z") || dateStr.includes("+") ? dateStr : dateStr + "Z",
+    );
     return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 

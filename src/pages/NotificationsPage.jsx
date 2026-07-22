@@ -142,7 +142,9 @@ export default function NotificationsPage() {
 function formatTimeAgo(dateStr) {
   if (!dateStr) return "";
   const now = new Date();
-  const date = new Date(dateStr);
+  const date = new Date(
+    dateStr.endsWith("Z") || dateStr.includes("+") ? dateStr : dateStr + "Z",
+  );
   const diffMs = now - date;
   const diffMins = Math.floor(diffMs / 60000);
   const diffHours = Math.floor(diffMs / 3600000);

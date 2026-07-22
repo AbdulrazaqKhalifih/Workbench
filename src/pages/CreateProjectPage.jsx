@@ -7,7 +7,6 @@ import { useProjects } from "../context/ProjectContext";
 
 export default function CreateProjectPage() {
   const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
   const [searchParams] = useSearchParams();
   const preselectedTeamId = searchParams.get("teamId") || "";
   const [selectedTeamId, setSelectedTeamId] = useState(preselectedTeamId);
@@ -25,7 +24,7 @@ export default function CreateProjectPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedTeamId) return;
-    const project = await createProject(name, description, selectedTeamId);
+    const project = await createProject(name, selectedTeamId);
     if (project?.id) {
       navigate(`/projects/${project.id}`);
     }
@@ -92,23 +91,6 @@ export default function CreateProjectPage() {
             onChange={(e) => setName(e.target.value)}
             className="block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 placeholder-gray-400 transition-colors focus:border-amber-400 focus:ring-1 focus:ring-amber-200 focus:outline-none"
             placeholder="e.g., Sprint 1"
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor="description"
-            className="block text-xs font-medium text-gray-600 mb-1"
-          >
-            Description
-          </label>
-          <textarea
-            id="description"
-            rows={3}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 placeholder-gray-400 transition-colors focus:border-amber-400 focus:ring-1 focus:ring-amber-200 focus:outline-none"
-            placeholder="What is this project about?"
           />
         </div>
 
