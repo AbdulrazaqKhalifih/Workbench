@@ -1,14 +1,26 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Bell, CheckCheck, UserCheck, Loader2, ArrowRight } from "lucide-react";
+import {
+  Bell,
+  CheckCheck,
+  UserCheck,
+  UserPlus,
+  UserMinus,
+  Loader2,
+  ArrowRight,
+} from "lucide-react";
 import { useNotifications } from "../context/NotificationContext";
 
 const NOTIFICATION_ICONS = {
   TASK_ASSIGNED: UserCheck,
+  TEAM_MEMBER_ADDED: UserPlus,
+  TEAM_MEMBER_REMOVED: UserMinus,
 };
 
 const NOTIFICATION_COLORS = {
   TASK_ASSIGNED: "bg-amber-50 text-amber-600",
+  TEAM_MEMBER_ADDED: "bg-emerald-50 text-emerald-600",
+  TEAM_MEMBER_REMOVED: "bg-red-50 text-red-500",
 };
 
 export default function NotificationsPage() {

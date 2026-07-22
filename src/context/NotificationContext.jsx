@@ -130,6 +130,15 @@ export function NotificationProvider({ children }) {
     }
   }, [token, fetchUnreadCount]);
 
+  // Poll for new notifications every 30 seconds
+  useEffect(() => {
+    if (!token) return;
+    const interval = setInterval(() => {
+      fetchUnreadCount();
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [token, fetchUnreadCount]);
+
   return (
     <NotificationContext.Provider
       value={{

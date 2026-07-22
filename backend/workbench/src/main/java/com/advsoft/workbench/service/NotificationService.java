@@ -31,6 +31,32 @@ public class NotificationService {
         notificationRepository.save(notification);
     }
 
+    public void createTeamMemberAddedNotification(User recipient, String teamName) {
+        if (recipient == null) return;
+
+        Notification notification = Notification.builder()
+                .user(recipient)
+                .message("You have been added to team: " + teamName)
+                .type("TEAM_MEMBER_ADDED")
+                .sentAt(LocalDateTime.now())
+                .build();
+
+        notificationRepository.save(notification);
+    }
+
+    public void createTeamMemberRemovedNotification(User recipient, String teamName) {
+        if (recipient == null) return;
+
+        Notification notification = Notification.builder()
+                .user(recipient)
+                .message("You have been removed from team: " + teamName)
+                .type("TEAM_MEMBER_REMOVED")
+                .sentAt(LocalDateTime.now())
+                .build();
+
+        notificationRepository.save(notification);
+    }
+
     public List<NotificationDTO> getNotificationsForUser(User user) {
         return notificationRepository.findByUserOrderBySentAtDesc(user)
                 .stream()

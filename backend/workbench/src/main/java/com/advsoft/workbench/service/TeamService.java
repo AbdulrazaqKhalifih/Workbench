@@ -28,6 +28,7 @@ public class TeamService {
     private final TeamRepository teamRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     public TeamDTO createTeam(CreateTeamDTO dto) {
         Team team = new Team();
@@ -98,6 +99,8 @@ public class TeamService {
         member.setRole(TeamRole.valueOf(dto.getRole().toUpperCase()));
         TeamMember saved = teamMemberRepository.save(member);
 
+        notificationService.createTeamMemberAddedNotification(user, team.getName());
+
         return TeamMemberDTO.fromEntity(saved);
     }
 
@@ -118,5 +121,7 @@ public class TeamService {
         TeamMember member = teamMemberRepository.findByTeamAndUser(team, user)
                 .orElseThrow(() -> new RuntimeException("Member not found"));
         teamMemberRepository.delete(member);
+
+        notificationService.createTeamMemberRemovedNotification(user, team.getName());
     }
 }
