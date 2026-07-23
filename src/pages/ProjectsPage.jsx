@@ -3,7 +3,9 @@ import { FolderKanban, Plus } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useTeams } from "../context/TeamContext";
 import { useProjects } from "../context/ProjectContext";
+import { useEffect } from "react";
 import RefreshButton from "../components/RefreshButton";
+import ProjectProgressBar from "../components/ProjectProgressBar";
 
 export default function ProjectsPage() {
   const { user } = useAuth();
@@ -17,6 +19,10 @@ export default function ProjectsPage() {
   const userProjects = projects.filter((p) =>
     userTeamIds.map(String).includes(String(p.teamId)),
   );
+
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
 
   const getTeamName = (teamId) =>
     teams.find((t) => String(t.id) === String(teamId))?.name || "Unknown";
@@ -68,17 +74,26 @@ export default function ProjectsPage() {
               <div className="mb-2.5 flex h-7 w-7 items-center justify-center rounded bg-amber-50 text-amber-500 group-hover:bg-amber-100 transition-colors">
                 <FolderKanban className="h-3.5 w-3.5" />
               </div>
-              <h3 className="text-xs font-semibold text-gray-900">
-                {project.name}
-              </h3>
+              <div className="space-y-2">
+                <div>
+                  <h3 className="text-xs font-semibold text-gray-900">
+                    {project.name}
+                  </h3>
+                  <span className="mt-1 inline-flex rounded bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-600">
+                    {getTeamName(project.teamId)}
+                  </span>
+                </div>
 
-              <div className="mt-2.5 flex items-center justify-between">
-                <span className="rounded bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-600">
-                  {getTeamName(project.teamId)}
-                </span>
-                <span className="text-[10px] text-amber-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                  Open →
-                </span>
+                <ProjectProgressBar
+                  completed={project.completedTaskCount}
+                  total={project.totalTaskCount}
+                />
+
+                <div className="flex justify-end">
+                  <span className="text-[10px] text-amber-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                    Open →
+                  </span>
+                </div>
               </div>
             </Link>
           ))}

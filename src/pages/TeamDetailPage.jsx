@@ -14,6 +14,7 @@ import {
 import { useAuth } from "../context/AuthContext";
 import { useTeams } from "../context/TeamContext";
 import { useProjects } from "../context/ProjectContext";
+import ProjectProgressBar from "../components/ProjectProgressBar";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_URL || "http://localhost:8080/api/v1";
@@ -339,9 +340,15 @@ export default function TeamDetailPage() {
                   to={`/projects/${project.id}`}
                   className="block rounded-md border border-gray-100 p-2.5 transition-colors hover:bg-gray-50"
                 >
-                  <p className="text-xs font-medium text-gray-900">
-                    {project.name}
-                  </p>
+                  <div className="space-y-1.5">
+                    <p className="text-xs font-medium text-gray-900">
+                      {project.name}
+                    </p>
+                    <ProjectProgressBar
+                      completed={project.completedTaskCount}
+                      total={project.totalTaskCount}
+                    />
+                  </div>
                 </Link>
               ))}
             </div>

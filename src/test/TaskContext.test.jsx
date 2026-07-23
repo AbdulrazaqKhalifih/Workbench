@@ -1,6 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, act } from "@testing-library/react";
 import { TaskProvider, useTasks } from "../context/TaskContext";
+const fetchProjectsMock = vi.fn();
+
+vi.mock("../context/ProjectContext", () => ({
+  useProjects: () => ({
+    fetchProjects: fetchProjectsMock,
+  }),
+}));
 
 const API_URL = "http://localhost:8080/api/v1";
 
@@ -82,7 +89,6 @@ function TestTasks() {
   );
 }
 
-// We need to wrap with AuthProvider for token context
 import { AuthProvider } from "../context/AuthContext";
 
 function renderWithProviders(ui) {
@@ -115,6 +121,7 @@ const mockComments = [{ id: 1, text: "First!", taskId: 1, userName: "User" }];
 describe("TaskContext", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    fetchProjectsMock.mockReset();
   });
 
   it("renders with no tasks initially", () => {
@@ -160,6 +167,7 @@ describe("TaskContext", () => {
   });
 
   it("createTask adds task optimistically", async () => {
+    fetchProjectsMock.mockResolvedValue(undefined);
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
@@ -180,6 +188,10 @@ describe("TaskContext", () => {
       // Optimistic: appears immediately
       expect(screen.getByTestId("tasks-count").textContent).toBe("1");
     });
+
+    await waitFor(() => {
+      expect(fetchProjectsMock).toHaveBeenCalledTimes(1);
+    });
   });
 
   it("updateTask updates task optimistically", async () => {
@@ -187,6 +199,7 @@ describe("TaskContext", () => {
       ok: true,
       json: async () => ({ id: 1, title: "Updated", status: "TODO" }),
     });
+    fetchProjectsMock.mockResolvedValue(undefined);
 
     // First load tasks
     global.fetch = vi.fn().mockResolvedValueOnce({
@@ -217,6 +230,10 @@ describe("TaskContext", () => {
     await waitFor(() => {
       expect(screen.getByTestId("tasks-count").textContent).toBe("2");
     });
+
+    await waitFor(() => {
+      expect(fetchProjectsMock).toHaveBeenCalledTimes(1);
+    });
   });
 
   it("deleteTask removes task optimistically", async () => {
@@ -224,6 +241,7 @@ describe("TaskContext", () => {
       ok: true,
       json: async () => mockTasks,
     });
+    fetchProjectsMock.mockResolvedValue(undefined);
 
     renderWithProviders(<TestTasks />);
 
@@ -244,6 +262,10 @@ describe("TaskContext", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("tasks-count").textContent).toBe("1");
+    });
+
+    await waitFor(() => {
+      expect(fetchProjectsMock).toHaveBeenCalledTimes(1);
     });
   });
 

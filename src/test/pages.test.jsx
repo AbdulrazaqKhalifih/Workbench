@@ -88,17 +88,47 @@ vi.mock("../context/TeamContext", () => ({
 vi.mock("../context/ProjectContext", () => ({
   useProjects: () => ({
     projects: [
-      { id: 1, name: "Project X", teamId: 1 },
-      { id: 2, name: "Project Y", teamId: 2 },
+      {
+        id: 1,
+        name: "Project X",
+        teamId: 1,
+        totalTaskCount: 4,
+        completedTaskCount: 2,
+      },
+      {
+        id: 2,
+        name: "Project Y",
+        teamId: 2,
+        totalTaskCount: 1,
+        completedTaskCount: 1,
+      },
     ],
     fetchProjects: vi.fn(),
     createProject: vi.fn(),
     deleteProject: vi.fn(),
     updateProject: vi.fn(),
     getProject: (id) =>
-      id === "1" ? { id: 1, name: "Project X", teamId: 1 } : null,
+      id === "1"
+        ? {
+            id: 1,
+            name: "Project X",
+            teamId: 1,
+            totalTaskCount: 4,
+            completedTaskCount: 2,
+          }
+        : null,
     getProjectsByTeam: (teamId) =>
-      teamId === "1" ? [{ id: 1, name: "Project X", teamId: 1 }] : [],
+      teamId === "1"
+        ? [
+            {
+              id: 1,
+              name: "Project X",
+              teamId: 1,
+              totalTaskCount: 4,
+              completedTaskCount: 2,
+            },
+          ]
+        : [],
     loading: false,
   }),
 }));
@@ -229,6 +259,7 @@ describe("Pages", () => {
       expect(screen.getByText("Your Projects")).toBeTruthy();
       const projectLinks = screen.getAllByRole("link", { name: /Project/ });
       expect(projectLinks.length).toBeGreaterThan(0);
+      expect(screen.getByText("2 of 4 tasks complete")).toBeTruthy();
     });
 
     it("renders Your Tasks section", () => {
@@ -258,6 +289,8 @@ describe("Pages", () => {
       expect(screen.getByText("Projects")).toBeTruthy();
       expect(screen.getByText("Project X")).toBeTruthy();
       expect(screen.getByText("Project Y")).toBeTruthy();
+      expect(screen.getByText("2 of 4 tasks complete")).toBeTruthy();
+      expect(screen.getByText("1 of 1 tasks complete")).toBeTruthy();
     });
 
     it("shows New Project button", () => {

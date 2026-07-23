@@ -17,6 +17,7 @@ import { useProjects } from "../context/ProjectContext";
 import { useTeams } from "../context/TeamContext";
 import { useTasks } from "../context/TaskContext";
 import RefreshButton from "../components/RefreshButton";
+import ProjectProgressBar from "../components/ProjectProgressBar";
 
 const STATUS_COLUMNS = [
   { key: "TODO", label: "To Do", color: "bg-gray-100 text-gray-700" },
@@ -246,6 +247,13 @@ export default function ProjectDetailPage() {
                     {teamMembers.length !== 1 ? "s" : ""}
                   </span>
                 )}
+              </div>
+
+              <div className="mt-3 max-w-sm">
+                <ProjectProgressBar
+                  completed={project.completedTaskCount}
+                  total={project.totalTaskCount}
+                />
               </div>
             </div>
           </div>
