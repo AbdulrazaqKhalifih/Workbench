@@ -16,6 +16,10 @@ public class ProjectDTO {
 
     private String name;
 
+    private long totalTaskCount;
+
+    private long completedTaskCount;
+
     private Long teamId;
 
     private LocalDateTime startDate;
@@ -24,10 +28,12 @@ public class ProjectDTO {
 
     private LocalDateTime createdAt;
 
-    public static ProjectDTO fromEntity(Project project) {
+    public static ProjectDTO fromEntity(Project project, long totalTaskCount, long completedTaskCount) {
         return new ProjectDTO(
                 project.getId(),
                 project.getName(),
+                totalTaskCount,
+                completedTaskCount,
                 project.getTeam().getId(),
                 project.getStartDate(),
                 project.getEndDate(),

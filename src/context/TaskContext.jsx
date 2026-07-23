@@ -7,6 +7,7 @@ import {
   useRef,
 } from "react";
 import { useAuth } from "./AuthContext";
+import { useProjects } from "./ProjectContext";
 
 const TaskContext = createContext(null);
 const API_BASE_URL =
@@ -19,6 +20,7 @@ export function TaskProvider({ children }) {
   const tasksCache = useRef({});
   const commentsCache = useRef({});
   const { token } = useAuth();
+  const { fetchProjects } = useProjects();
 
   const headers = useMemo(
     () => ({
@@ -32,6 +34,11 @@ export function TaskProvider({ children }) {
     tasksCache.current[cacheKey] = data;
     setTasks(data);
   };
+
+  const refreshProjectCounts = useCallback(async () => {
+    if (!fetchProjects) return;
+    await fetchProjects();
+  }, [fetchProjects]);
 
   const fetchTasksByProject = useCallback(
     async (projectId) => {
@@ -156,6 +163,7 @@ export function TaskProvider({ children }) {
         setTasks((prev) =>
           prev.map((t) => (String(t.id) === tempId ? newTask : t)),
         );
+        await refreshProjectCounts();
         return newTask;
       }
       // API failed - remove optimistic task
@@ -173,6 +181,8 @@ export function TaskProvider({ children }) {
   };
 
   const updateTask = async (taskId, updates) => {
+    const existingTask = tasks.find((t) => String(t.id) === String(taskId));
+
     // Optimistic: update immediately
     setTasks((prev) =>
       prev.map((t) =>
@@ -191,6 +201,9 @@ export function TaskProvider({ children }) {
         setTasks((prev) =>
           prev.map((t) => (String(t.id) === String(taskId) ? updated : t)),
         );
+        if (existingTask?.projectId || updated?.projectId) {
+          await refreshProjectCounts();
+        }
         return updated;
       }
       const err = await response.json();
@@ -215,6 +228,7 @@ export function TaskProvider({ children }) {
         headers,
       });
       if (response.ok) {
+        await refreshProjectCounts();
         return true;
       }
       // API failed - restore

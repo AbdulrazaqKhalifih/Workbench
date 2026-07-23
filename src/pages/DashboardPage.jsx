@@ -11,6 +11,7 @@ import { useAuth } from "../context/AuthContext";
 import { useTeams } from "../context/TeamContext";
 import { useProjects } from "../context/ProjectContext";
 import { useTasks } from "../context/TaskContext";
+import ProjectProgressBar from "../components/ProjectProgressBar";
 
 const STATUS_BADGE = {
   TODO: "bg-gray-100 text-gray-600",
@@ -138,10 +139,16 @@ export default function DashboardPage() {
                     <div className="flex h-6 w-6 items-center justify-center rounded bg-gray-100">
                       <FolderKanban className="h-3 w-3 text-gray-500" />
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <p className="text-xs font-medium text-gray-900">
                         {project.name}
                       </p>
+                      <div className="mt-1 w-44 max-w-full">
+                        <ProjectProgressBar
+                          completed={project.completedTaskCount}
+                          total={project.totalTaskCount}
+                        />
+                      </div>
                     </div>
                   </div>
                   <span className="text-[10px] text-amber-500">→</span>

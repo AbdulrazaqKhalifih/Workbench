@@ -1,4 +1,11 @@
-import { createContext, useContext, useState, useEffect, useMemo } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+} from "react";
 import { useAuth } from "./AuthContext";
 
 const TeamContext = createContext(null);
@@ -25,7 +32,7 @@ export function TeamProvider({ children }) {
     }
   }, [token]);
 
-  const fetchTeamMembers = async (teamId) => {
+  const fetchTeamMembers = useCallback(async (teamId) => {
     const response = await fetch(`${API_BASE_URL}/teams/${teamId}/members`, {
       headers,
     });
@@ -40,9 +47,9 @@ export function TeamProvider({ children }) {
     }
 
     return response.json();
-  };
+  }, [headers]);
 
-  const hydrateTeamMembers = async (teamId) => {
+  const hydrateTeamMembers = useCallback(async (teamId) => {
     try {
       const members = await fetchTeamMembers(teamId);
       setTeams((prev) =>
@@ -56,9 +63,9 @@ export function TeamProvider({ children }) {
         error,
       );
     }
-  };
+  }, [fetchTeamMembers]);
 
-  const fetchTeams = async () => {
+  const fetchTeams = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`${API_BASE_URL}/teams/my/teams`, {
@@ -85,7 +92,7 @@ export function TeamProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [headers, fetchTeamMembers]);
 
   const createTeam = async (name, description) => {
     try {
@@ -127,15 +134,9 @@ export function TeamProvider({ children }) {
       });
 
       if (response.ok) {
-        const updatedMembers = await fetchTeamMembers(teamId);
-        setTeams((prev) =>
-          prev.map((team) =>
-            String(team.id) === String(teamId)
-              ? { ...team, members: updatedMembers }
-              : team,
-          ),
-        );
-        return await response.json();
+        const member = await response.json();
+        await fetchTeams();
+        return member;
       }
     } catch (error) {
       console.error("Failed to add team member:", error);
@@ -228,14 +229,7 @@ export function TeamProvider({ children }) {
         { method: "DELETE", headers },
       );
       if (response.ok) {
-        const updatedMembers = await fetchTeamMembers(teamId);
-        setTeams((prev) =>
-          prev.map((team) =>
-            String(team.id) === String(teamId)
-              ? { ...team, members: updatedMembers }
-              : team,
-          ),
-        );
+        await fetchTeams();
         return true;
       }
       // Restore

@@ -5,7 +5,9 @@ import com.advsoft.workbench.dto.request.UpdateProjectDTO;
 import com.advsoft.workbench.dto.response.ProjectDTO;
 import com.advsoft.workbench.model.Project;
 import com.advsoft.workbench.model.Team;
+import com.advsoft.workbench.enums.TaskStatus;
 import com.advsoft.workbench.repository.ProjectRepository;
+import com.advsoft.workbench.repository.TaskRepository;
 import com.advsoft.workbench.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final TaskRepository taskRepository;
     private final TeamRepository teamRepository;
 
     public ProjectDTO createProject(CreateProjectDTO dto) {
@@ -33,26 +36,26 @@ public class ProjectService {
         project.setEndDate(dto.getEndDate());
 
         Project saved = projectRepository.save(project);
-        return ProjectDTO.fromEntity(saved);
+        return toDTO(saved);
     }
 
     public ProjectDTO getProject(Long projectId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found"));
-        return ProjectDTO.fromEntity(project);
+        return toDTO(project);
     }
 
     public List<ProjectDTO> getProjectsByTeam(Long teamId) {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new RuntimeException("Team not found"));
         return projectRepository.findByTeam(team).stream()
-                .map(ProjectDTO::fromEntity)
+            .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
     public List<ProjectDTO> getAllProjects() {
         return projectRepository.findAll().stream()
-                .map(ProjectDTO::fromEntity)
+            .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
@@ -71,10 +74,16 @@ public class ProjectService {
         }
 
         Project updated = projectRepository.save(project);
-        return ProjectDTO.fromEntity(updated);
+        return toDTO(updated);
     }
 
     public void deleteProject(Long projectId) {
         projectRepository.deleteById(projectId);
+    }
+
+    private ProjectDTO toDTO(Project project) {
+        long totalTaskCount = taskRepository.countByProject(project);
+        long completedTaskCount = taskRepository.countByProjectAndStatus(project, TaskStatus.DONE);
+        return ProjectDTO.fromEntity(project, totalTaskCount, completedTaskCount);
     }
 }

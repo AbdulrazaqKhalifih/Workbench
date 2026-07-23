@@ -1,4 +1,11 @@
-import { createContext, useContext, useState, useEffect, useMemo } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+} from "react";
 import { useAuth } from "./AuthContext";
 
 const ProjectContext = createContext(null);
@@ -18,14 +25,7 @@ export function ProjectProvider({ children }) {
     [token],
   );
 
-  // Fetch projects on mount or when token changes
-  useEffect(() => {
-    if (token) {
-      fetchProjects();
-    }
-  }, [token]);
-
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`${API_BASE_URL}/projects`, { headers });
@@ -44,7 +44,14 @@ export function ProjectProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [headers]);
+
+  // Fetch projects on mount or when token changes
+  useEffect(() => {
+    if (token) {
+      fetchProjects();
+    }
+  }, [token, fetchProjects]);
 
   const createProject = async (name, teamId) => {
     // Optimistic: add immediately
@@ -52,7 +59,8 @@ export function ProjectProvider({ children }) {
     const optimistic = {
       id: tempId,
       name,
-      description: description || "",
+      totalTaskCount: 0,
+      completedTaskCount: 0,
       teamId: Number(teamId),
     };
     setProjects((prev) => [...prev, optimistic]);
@@ -61,7 +69,7 @@ export function ProjectProvider({ children }) {
       const response = await fetch(`${API_BASE_URL}/projects`, {
         method: "POST",
         headers,
-        body: JSON.stringify({ name, description, teamId }),
+        body: JSON.stringify({ name, teamId }),
       });
       if (response.ok) {
         const newProject = await response.json();
